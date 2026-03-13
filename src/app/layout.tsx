@@ -12,7 +12,12 @@ export const metadata: Metadata = {
   title: "Vybe Lang",
   description: "A modern, expressive scripting language designed for clarity, creativity, and elite developer workflows.",
   icons: {
-    icon: "/logo.png",
+    icon: [
+      {
+        url: "/logo.png",
+        href: "/logo.png",
+      },
+    ],
   },
 };
 
