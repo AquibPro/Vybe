@@ -12,7 +12,7 @@ vibe greet(name) {
   say "Hello, {name}! 👋"
 }
 
-ask "Your name?" into name
+name = ask "Your name?"
 greet name`,
     },
     {

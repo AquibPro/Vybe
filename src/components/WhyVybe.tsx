@@ -104,7 +104,7 @@ export default function WhyVybe() {
                                         whileInView={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.7, duration: 0.5 }}
                                     >
-                                        {"  "}<span className="gradient-text">fetch</span> <span className="text-yellow-400">&quot;/api/user&quot;</span> <span className="gradient-text">into</span> <span className="text-white">user</span>
+                                        {"  "}<span className="text-white">user</span> = <span className="gradient-text">fetch</span> <span className="text-yellow-400">&quot;/api/user&quot;</span>
                                     </motion.div>
                                     <motion.div
                                         initial={{ opacity: 0, x: 10 }}

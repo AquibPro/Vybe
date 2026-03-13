@@ -1,17 +1,16 @@
 import { MK_BOOL, MK_NATIVE_FN, MK_NULL, MK_NUMBER, MK_STRING, RuntimeVal, ObjectVal, NumberVal, StringVal, BooleanVal, ListVal, MK_LIST, getPrintable } from "./values";
-export function createGlobalEnv(envVars: Record<string, string> = {}, onOutput?: (msg: string) => void): Environment {
-    const env = new Environment();
-    env.onOutput = onOutput;
+
+export function createGlobalEnv(envVars: Record<string, string> = {}, logger: (msg: string) => void = console.log): Environment {
+    const env = new Environment(undefined, logger);
     // Global Booleans
     env.declareVar("fr", MK_BOOL(true));
     env.declareVar("cap", MK_BOOL(false));
     env.declareVar("null", MK_NULL());
-    env.declareVar("ghost", MK_NULL());
 
     // env object for environment variables
     const envProps = new Map<string, RuntimeVal>();
     for (const [key, value] of Object.entries(envVars)) {
-        envProps.set(key, MK_STRING(value));
+        if (value !== undefined) envProps.set(key, MK_STRING(value));
     }
     env.declareVar("env", { type: "object", properties: envProps } as ObjectVal);
 
@@ -35,19 +34,9 @@ export function createGlobalEnv(envVars: Record<string, string> = {}, onOutput?:
         return MK_NULL();
     }));
 
-    env.declareVar("spill", MK_NATIVE_FN((args, _env) => {
-        const val = args[0];
-        const msg = getPrintable(val);
-        if (onOutput) onOutput(msg);
-        else console.log(msg);
-        return MK_NULL();
-    }));
-
     env.declareVar("say", MK_NATIVE_FN((args, _env) => {
         const val = args[0];
-        const msg = getPrintable(val);
-        if (onOutput) onOutput(msg);
-        else console.log(msg);
+        logger(getPrintable(val));
         return MK_NULL();
     }));
 
@@ -80,6 +69,13 @@ export function createGlobalEnv(envVars: Record<string, string> = {}, onOutput?:
     mathObj.set("ceil", MK_NATIVE_FN((args) => MK_NUMBER(Math.ceil((args[0] as NumberVal).value))));
     env.declareVar("Math", { type: "object", properties: mathObj } as ObjectVal);
 
+    // Global Math Shortcuts
+    env.declareVar("sqrt", mathObj.get("sqrt")!);
+    env.declareVar("abs", mathObj.get("abs")!);
+    env.declareVar("floor", mathObj.get("floor")!);
+    env.declareVar("ceil", mathObj.get("ceil")!);
+    env.declareVar("round", MK_NATIVE_FN((args) => MK_NUMBER(Math.round((args[0] as NumberVal).value))));
+
     // String module
     const strObj = new Map<string, RuntimeVal>();
     strObj.set("upper", MK_NATIVE_FN((args) => MK_STRING((args[0] as StringVal).value.toUpperCase())));
@@ -89,16 +85,6 @@ export function createGlobalEnv(envVars: Record<string, string> = {}, onOutput?:
         return MK_LIST(parts.map(p => MK_STRING(p)));
     }));
     env.declareVar("String", { type: "object", properties: strObj } as ObjectVal);
-
-    // FileSystem module (STUBBED FOR BROWSER)
-    const fsObj = new Map<string, RuntimeVal>();
-    fsObj.set("read", MK_NATIVE_FN((args) => {
-        throw "File I/O is disabled in the browser environment.";
-    }));
-    fsObj.set("write", MK_NATIVE_FN((args) => {
-        throw "File I/O is disabled in the browser environment.";
-    }));
-    env.declareVar("File", { type: "object", properties: fsObj } as ObjectVal);
 
     env.declareVar("type", MK_NATIVE_FN((args, _env) => {
         const val = args[0];
@@ -157,24 +143,102 @@ export function createGlobalEnv(envVars: Record<string, string> = {}, onOutput?:
         return MK_STRING(getPrintable(val));
     }));
 
+    // JSON Helper
+    env.declareVar("json", MK_NATIVE_FN((args, _env) => {
+        const input = args[0];
+        if (input.type === "string") {
+            try {
+                return wrapJsValue(JSON.parse((input as StringVal).value));
+            } catch (e) {
+                throw new Error("Invalid JSON string");
+            }
+        } else {
+            return MK_STRING(JSON.stringify(unwrapVybeValue(input)));
+        }
+    }));
+
     return env;
+}
+
+export function unwrapVybeValue(val: RuntimeVal): any {
+    if (val.type === "string") return (val as StringVal).value;
+    if (val.type === "number") return (val as NumberVal).value;
+    if (val.type === "boolean") return (val as BooleanVal).value;
+    if (val.type === "null") return null;
+    if (val.type === "list") return (val as ListVal).elements.map(unwrapVybeValue);
+    if (val.type === "object") {
+        const obj: any = {};
+        for (const [key, v] of Array.from((val as ObjectVal).properties.entries())) {
+            obj[key] = unwrapVybeValue(v);
+        }
+        return obj;
+    }
+    return val;
+}
+
+export function wrapJsValue(jsVal: any): RuntimeVal {
+    if (typeof jsVal === "function" || (typeof jsVal === "object" && jsVal !== null && !Array.isArray(jsVal))) {
+        const fakeMap = {
+            get: (key: string) => {
+                const val = jsVal[key];
+                if (typeof val === "function") {
+                    return wrapJsValue(val.bind(jsVal));
+                }
+                return val !== undefined ? wrapJsValue(val) : undefined;
+            },
+            has: (key: string) => key in jsVal,
+            entries: () => {
+                const entries = Object.entries(jsVal).map(([k, v]) => [k, wrapJsValue(v)]);
+                return entries;
+            },
+            [Symbol.iterator]: function* () {
+                for (const key in jsVal) {
+                    yield [key, wrapJsValue(jsVal[key])];
+                }
+            }
+        };
+
+        if (typeof jsVal === "function") {
+            return {
+                type: "native-fn",
+                call: async (args: any[]) => {
+                    const unwrapped = args.map(unwrapVybeValue);
+                    const res = jsVal(...unwrapped);
+                    return wrapJsValue(res instanceof Promise ? await res : res);
+                },
+                properties: fakeMap
+            } as any;
+        } else {
+            return {
+                type: "object",
+                properties: fakeMap
+            } as any;
+        }
+    }
+
+    if (Array.isArray(jsVal)) {
+        return MK_LIST(jsVal.map(wrapJsValue));
+    }
+    if (jsVal === null) return MK_NULL();
+    if (typeof jsVal === "string") return MK_STRING(jsVal);
+    if (typeof jsVal === "number") return MK_NUMBER(jsVal);
+    if (typeof jsVal === "boolean") return MK_BOOL(jsVal);
+    return MK_NULL();
 }
 
 export class Environment {
     private parent?: Environment;
     protected variables: Map<string, RuntimeVal>;
-    public onOutput?: (msg: string) => void;
+    public logger: (msg: string) => void;
 
     public getVariables(): Map<string, RuntimeVal> {
         return this.variables;
     }
 
-    constructor(parentENV?: Environment) {
+    constructor(parentENV?: Environment, logger: (msg: string) => void = console.log) {
         this.parent = parentENV;
         this.variables = new Map();
-        if (parentENV?.onOutput) {
-            this.onOutput = parentENV.onOutput;
-        }
+        this.logger = parentENV ? parentENV.logger : logger;
     }
 
     public declareVar(varname: string, value: RuntimeVal): RuntimeVal {
@@ -211,5 +275,9 @@ export class Environment {
         }
 
         return this.parent.resolve(varname);
+    }
+
+    public say(msg: string): void {
+        this.logger(msg);
     }
 }

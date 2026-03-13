@@ -2,10 +2,10 @@
 import { motion } from "framer-motion";
 import VybeHighlighter from "./VybeHighlighter";
 
-const CODE = `ask "Who's coding?" into user
+const CODE = `user = ask "Who's coding?"
 say "Watching {user} cook... 👨‍🍳"
 
-fetch "https://api.vybe.dev/status" into res
+res = fetch "https://api.vybe.dev/status"
 
 sus res.mood == "bussin" {
   say "The vibe is elite. No cap."

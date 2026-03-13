@@ -4,6 +4,7 @@ import WhyVybeExists from "@/components/WhyVybeExists";
 import WhatYouCanBuild from "@/components/WhatYouCanBuild";
 import WhyVybe from "@/components/WhyVybe";
 import GenZSection from "@/components/GenZSection";
+import VerbosityChart from "@/components/VerbosityChart";
 import FeatureHighlight from "@/components/FeatureHighlight";
 import Timeline from "@/components/Timeline";
 import { VybeIdentity, TinyGameShowcase } from "@/components/Showcases";
@@ -19,6 +20,7 @@ export default function Home() {
       <VybeIdentity />
       <WhatYouCanBuild />
       <WhyVybe />
+      <VerbosityChart />
       <GenZSection />
       <FeatureHighlight />
       <Timeline />

@@ -14,7 +14,7 @@ export default function Navbar() {
     };
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 md:px-12 backdrop-blur-md border-b border-white/5 bg-black/20">
+        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3 md:px-12 backdrop-blur-md border-b border-white/5 bg-black/20">
             <Link href="/" className="flex items-center gap-2 group">
                 <div className="w-8 h-8 rounded-lg bg-vybe-gradient flex items-center justify-center p-0 shadow-lg overflow-hidden">
                     <img src="/logo.png" alt="V" className="w-full h-full object-cover" />

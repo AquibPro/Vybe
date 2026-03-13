@@ -54,6 +54,7 @@ export type FunctionCall = (args: RuntimeVal[], env: any) => Promise<RuntimeVal>
 export interface NativeFnVal extends RuntimeVal {
     type: "native-fn";
     call: FunctionCall;
+    properties?: Map<string, RuntimeVal>;
 }
 
 export function MK_NATIVE_FN(call: FunctionCall): NativeFnVal {
@@ -66,6 +67,7 @@ export interface FunctionVal extends RuntimeVal {
     parameters: string[];
     declarationEnv: any;
     body: any;
+    isArrow?: boolean;
 }
 
 export interface ObjectVal extends RuntimeVal {

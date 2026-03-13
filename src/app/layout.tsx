@@ -9,8 +9,11 @@ import ClickRipple from "@/components/ClickRipple";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Vybe | The Programming Language That Feels Alive",
-  description: "A modern expressive language inspired by culture, creativity, and developer flow.",
+  title: "Vybe Lang",
+  description: "A modern, expressive scripting language designed for clarity, creativity, and elite developer workflows.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -13,7 +13,7 @@ export default function Hero() {
     }, []);
 
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-48 pb-32">
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-36 pb-24">
             {/* Background Animated Gradient */}
             <div className="absolute inset-0 -z-10 bg-[#0B0F1A]">
                 <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-[#7F5AF0]/20 blur-[150px] animate-pulse-slow" />
@@ -35,7 +35,7 @@ export default function Hero() {
                     initial={isMounted ? { scale: 0.8, opacity: 0 } : false}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
-                    className="relative mb-8"
+                    className="relative mb-4"
                 >
                     <div className="w-24 h-24 rounded-[2rem] bg-vybe-gradient flex items-center justify-center p-0 shadow-[0_0_50px_rgba(127,90,240,0.3)] group cursor-pointer overflow-hidden">
                         <img src="/logo.png" alt="VybeLogo" className="w-full h-full object-cover" />
@@ -49,7 +49,7 @@ export default function Hero() {
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.3, duration: 0.8 }}
                 >
-                    <h1 className="text-6xl md:text-9xl font-black mb-6 tracking-tighter leading-none italic shimmer text-transparent">
+                    <h1 className="text-6xl md:text-9xl font-black mb-4 tracking-tighter leading-none italic shimmer text-transparent">
                         VYBE
                     </h1>
                 </motion.div>
@@ -60,13 +60,13 @@ export default function Hero() {
                     transition={{ delay: 0.5, duration: 0.8 }}
                     className="max-w-3xl"
                 >
-                    <p className="text-xl md:text-3xl font-bold uppercase tracking-[0.2em] text-white mb-6">
+                    <p className="text-xl md:text-3xl font-bold uppercase tracking-[0.2em] text-white mb-4">
                         Strictly <span className="gradient-text">Elite.</span> No <span className="gradient-text italic line-through">Cap.</span>
                     </p>
-                    <p className="text-lg text-white/50 leading-relaxed mb-6 font-medium max-w-2xl mx-auto">
+                    <p className="text-lg text-white/50 leading-relaxed mb-4 font-medium max-w-2xl mx-auto">
                         The programming language built for the next generation of systems. Blazing fast, purely expressive, and designed for flow.
                     </p>
-                    <p className="text-vybe-blue font-bold text-lg mb-12 tracking-wide">
+                    <p className="text-vybe-blue font-bold text-lg mb-8 tracking-wide">
                         Build APIs, automation scripts, and servers in a few lines.
                     </p>
                 </motion.div>

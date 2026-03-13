@@ -1,11 +1,10 @@
-
-
 export type ErrorCategory =
     | "Runtime Error"
     | "Syntax Error"
     | "Type Error"
     | "Reference Error"
-    | "Import Error";
+    | "Import Error"
+    | "JS Interop Error";
 
 const VYBE_MESSAGES = [
     "Lowkey this line is acting sus.",
@@ -32,51 +31,39 @@ export class VybeError extends Error {
 
 export function printVybeError(err: VybeError, sourceCode: string, filePath: string) {
     const lines = sourceCode.split(/\r?\n/);
-    let errorLine = lines[err.line - 1];
-    let isEOF = false;
-    let displayLineNum = err.line;
-    if (errorLine === undefined || errorLine.trim() === "") {
-        // Find nearest non-empty line upwards for context
-        let contextLineIdx = err.line - 1;
-        while (contextLineIdx >= 0 && (!lines[contextLineIdx] || lines[contextLineIdx].trim() === "")) {
-            contextLineIdx--;
-        }
+    const col = err.column || 1;
+    const randomVybeMsg = VYBE_MESSAGES[Math.floor(Math.random() * VYBE_MESSAGES.length)];
+    const displayFile = filePath;
 
-        if (contextLineIdx >= 0) {
-            errorLine = lines[contextLineIdx];
-            displayLineNum = contextLineIdx + 1;
-            // If the error is beyond the EOF, mark it
-            if (err.line > lines.length) isEOF = true;
-        } else {
-            errorLine = lines[err.line - 1] || "";
-        }
+    let errorLine = lines[err.line - 1] || "";
+    let displayLineNum = err.line;
+    let isEOF = false;
+
+    if (err.line > lines.length) {
+        isEOF = true;
+        displayLineNum = lines.length;
+        errorLine = lines[lines.length - 1] || "";
     }
 
-    // Safety check for weird column values
-    const col = Math.max(1, err.column);
-    const pointerPad = " ".repeat(col > 0 ? col - 1 : 0);
+    const pointerPad = " ".repeat(Math.max(0, col - 1));
 
-    const randomVybeMsg = VYBE_MESSAGES[Math.floor(Math.random() * VYBE_MESSAGES.length)];
-
-    const displayFile = filePath.replace(process.cwd(), "").replace(/^[\\\/]/, "");
-
-    let output = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+    let output = `------------------------------------\n`;
     output += `❌ Vybe ${err.category}\n\n`;
-    output += `File: \x1b[36m${displayFile}\x1b[0m\n`;
-    output += `Line: \x1b[33m${err.line}\x1b[0m${isEOF ? " \x1b[90m(End of File)\x1b[0m" : ""}\n`;
-    output += `Column: \x1b[33m${col}\x1b[0m\n\n`;
+    output += `File: ${displayFile}\n`;
+    output += `Line: ${err.line}${isEOF ? " (End of File)" : ""}\n`;
+    output += `Column: ${col}\n\n`;
 
-    output += `\x1b[90m${displayLineNum} | \x1b[0m${errorLine}\n`;
-    output += `\x1b[90m${" ".repeat(String(displayLineNum).length)} | \x1b[0m${pointerPad}\x1b[31m^\x1b[0m\n\n`;
+    output += `${displayLineNum} | ${errorLine}\n`;
+    output += `${" ".repeat(String(displayLineNum).length)} | ${pointerPad}^\n\n`;
 
-    output += `\x1b[31m${err.message}\x1b[0m\n`;
+    output += `${err.message}\n`;
 
     if (err.tip) {
-        output += `\n💡 Tip:\n${err.tip}\n`;
+        output += `\nTip: ${err.tip}\n`;
     }
 
-    output += `\n🔥 Vybe says:\n${randomVybeMsg}\n`;
-    output += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+    output += `\nVybe says: ${randomVybeMsg}\n`;
+    output += `------------------------------------`;
 
     console.error(output);
 }

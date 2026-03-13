@@ -31,7 +31,7 @@ const comparisons = [
             lang: "Node.js",
             code: `const fs = require('fs');\nconst data = fs.readFileSync('vibe.txt', 'utf8');\nfs.renameSync('a.txt', 'b.txt');`
         },
-        vybe: { code: `data = read "vibe.txt"\nmove "a.txt" into "b.txt"` }
+        vybe: { code: `data = read "vibe.txt"\nmove "a.txt" to "b.txt"` }
     },
     {
         label: "Web Requests",
@@ -39,7 +39,7 @@ const comparisons = [
             lang: "Node.js",
             code: `const res = await fetch(url);\nconst data = await res.json();\nsay(data.status);`
         },
-        vybe: { code: `fetch url into data\nsay data.status` }
+        vybe: { code: `data = fetch url\nsay data.status` }
     },
     {
         label: "Variables",

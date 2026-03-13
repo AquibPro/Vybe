@@ -24,9 +24,11 @@ export type NodeType =
     | "SquadDeclaration"
     | "OnceStatement"
     | "NaturalCommandStmt"
+    | "ServeStatement"
     | "JsBlock"
     // Expressions
     | "ExpressionStatement"
+    | "RangeExpr"
     | "AssignmentExpr"
     | "UnaryExpr"
     | "BinaryExpr"
@@ -41,6 +43,10 @@ export type NodeType =
     | "AwaitExpr"
     | "ConditionalExpr"
     | "FetchExpr"
+    | "ReadExpr"
+    | "RunExpr"
+    | "SayExpr"
+    | "NullCoalescingExpr"
     // Literals
     | "Identifier"
     | "NumericLiteral"
@@ -173,6 +179,14 @@ export interface NaturalCommandStmt extends Stmt {
     destination?: Expr;
 }
 
+export interface ServeStatement extends Stmt {
+    kind: "ServeStatement";
+    port: Expr;
+    handler?: BlockStatement | Expr;
+    staticPath?: Expr;
+    line: number;
+}
+
 export interface JsBlock extends Stmt {
     kind: "JsBlock";
     code: string;
@@ -222,7 +236,7 @@ export interface Expr extends Stmt { }
 
 export interface AskExpr extends Expr {
     kind: "AskExpr";
-    message: Expr;
+    message?: Expr;
 }
 
 export interface StashExpr extends Expr {
@@ -232,22 +246,34 @@ export interface StashExpr extends Expr {
 
 export interface SizeExpr extends Expr {
     kind: "SizeExpr";
-    argument: Expr;
+    argument?: Expr;
 }
 
 export interface TypeExpr extends Expr {
     kind: "TypeExpr";
-    argument: Expr;
+    argument?: Expr;
 }
 
 export interface PopExpr extends Expr {
     kind: "PopExpr";
-    list: Expr;
+    list?: Expr;
 }
 
 export interface PanicExpr extends Expr {
     kind: "PanicExpr";
-    argument: Expr;
+    argument?: Expr;
+}
+
+export interface RangeExpr extends Expr {
+    kind: "RangeExpr";
+    left: Expr;
+    right: Expr;
+}
+
+export interface NullCoalescingExpr extends Expr {
+    kind: "NullCoalescingExpr";
+    left: Expr;
+    right: Expr;
 }
 
 export interface AssignmentExpr extends Expr {
@@ -260,6 +286,21 @@ export interface AssignmentExpr extends Expr {
 export interface FetchExpr extends Expr {
     kind: "FetchExpr";
     url: Expr;
+}
+
+export interface ReadExpr extends Expr {
+    kind: "ReadExpr";
+    source: Expr;
+}
+
+export interface RunExpr extends Expr {
+    kind: "RunExpr";
+    command: Expr;
+}
+
+export interface SayExpr extends Expr {
+    kind: "SayExpr";
+    argument: Expr;
 }
 
 export interface AwaitExpr extends Expr {

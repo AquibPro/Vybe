@@ -1,19 +1,38 @@
 import { RuntimeVal, NumberVal, StringVal, BooleanVal, MK_NULL, MK_NUMBER, MK_STRING, MK_BOOL, MK_LIST, ListVal, NativeFnVal, FunctionVal, ObjectVal, MK_OBJECT, MK_NATIVE_FN, getPrintable } from "./values";
 import { VybeError } from "./error";
-import { Environment, createGlobalEnv } from "./environment";
-import { Stmt, Program, VarDeclaration, ExpressionStatement, AssignmentExpr, BinaryExpr, CallExpr, Identifier, NumericLiteral, StringLiteral, BooleanLiteral, NullLiteral, ArrayLiteral, BlockStatement, IfStatement, WhileStatement, LoopStatement, ReturnStatement, FunctionDeclaration, SayStatement, FlexStatement, PushStatement, PopStatement, AskExpr, StashExpr, SizeExpr, TypeExpr, BreakStatement, ContinueStatement, TryCatchStatement, ObjectLiteral, MemberExpr, NamespaceDeclaration, ImportStatement, ForEachStatement, ForStatement, MatchStatement, MatchCase, SquadDeclaration, AwaitExpr, OnceStatement, ConditionalExpr, UnaryExpr, NaturalCommandStmt, JsBlock, FetchExpr } from "./ast";
+import { Environment, createGlobalEnv, unwrapVybeValue, wrapJsValue } from "./environment";
+import { Stmt, Program, VarDeclaration, ExpressionStatement, AssignmentExpr, BinaryExpr, CallExpr, Identifier, NumericLiteral, StringLiteral, BooleanLiteral, NullLiteral, ArrayLiteral, BlockStatement, IfStatement, WhileStatement, LoopStatement, ReturnStatement, FunctionDeclaration, SayStatement, FlexStatement, PushStatement, PopStatement, AskExpr, StashExpr, SizeExpr, TypeExpr, BreakStatement, ContinueStatement, TryCatchStatement, ObjectLiteral, MemberExpr, NamespaceDeclaration, ImportStatement, ForEachStatement, ForStatement, MatchStatement, MatchCase, SquadDeclaration, AwaitExpr, OnceStatement, ConditionalExpr, UnaryExpr, NaturalCommandStmt, JsBlock, FetchExpr, ReadExpr, RunExpr, RangeExpr, ServeStatement, NullCoalescingExpr, SayExpr, Expr } from "./ast";
 import { tokenize } from "./lexer";
 import { Parser } from "./parser";
 
+// browser compatibility: provide dummy stub for fs/path if needed
+const fsStub = {
+    readFileSync: () => "fs not available in browser",
+    writeFileSync: () => {},
+    renameSync: () => {},
+    unlinkSync: () => {},
+    existsSync: () => false,
+    statSync: () => ({ isFile: () => false })
+};
+
+const pathStub = {
+    resolve: (...args: string[]) => args.join("/"),
+    join: (...args: string[]) => args.join("/"),
+    basename: (p: string) => p.split("/").pop() || p,
+    extname: (p: string) => p.includes(".") ? "." + p.split(".").pop() : ""
+};
+
 // Custom exception for control flow
-class BreakException { }
-class ContinueException { }
-class ReturnException { constructor(public value: RuntimeVal) { } }
+class BreakException { readonly kind = "break"; }
+class ContinueException { readonly kind = "continue"; }
+class ReturnException { readonly kind = "return"; constructor(public value: RuntimeVal) { } }
 
 const onceExecuted = new Set<string>();
 
 export async function evaluate(astNode: Stmt, env: Environment): Promise<RuntimeVal> {
     try {
+        if (!astNode) return MK_NULL();
+
         switch (astNode.kind) {
             case "NumericLiteral":
                 return MK_NUMBER((astNode as NumericLiteral).value);
@@ -41,8 +60,8 @@ export async function evaluate(astNode: Stmt, env: Environment): Promise<Runtime
                 return await evalMemberExpr(astNode as MemberExpr, env);
             case "ConditionalExpr":
                 return await evalConditionalExpr(astNode as ConditionalExpr, env);
-
-            // Expressions representing built-ins
+            case "NullCoalescingExpr":
+                return await evalNullCoalescingExpr(astNode as NullCoalescingExpr, env);
             case "AskExpr":
                 return await evalAskExpr(astNode as AskExpr, env);
             case "StashExpr":
@@ -51,16 +70,20 @@ export async function evaluate(astNode: Stmt, env: Environment): Promise<Runtime
                 return await evalSizeExpr(astNode as SizeExpr, env);
             case "TypeExpr":
                 return await evalTypeExpr(astNode as TypeExpr, env);
+            case "FetchExpr":
+                return await evalFetchExpr(astNode as FetchExpr, env);
+            case "RangeExpr":
+                return await evalRangeExpr(astNode as RangeExpr, env);
+            case "ReadExpr":
+                return await evalReadExpr(astNode as ReadExpr, env);
+            case "RunExpr":
+                return await evalRunExpr(astNode as RunExpr, env);
             case "AwaitExpr":
                 return await evalAwaitExpr(astNode as AwaitExpr, env);
             case "PopExpr":
                 return await evalPopExpr(astNode as any, env);
             case "PanicExpr":
                 return await evalPanicExpr(astNode as any, env);
-            case "FetchExpr":
-                return await evalFetchExpr(astNode as FetchExpr, env);
-
-            // Statements
             case "Program":
                 return await evalProgram(astNode as Program, env);
             case "ExpressionStatement":
@@ -85,44 +108,56 @@ export async function evaluate(astNode: Stmt, env: Environment): Promise<Runtime
                 return await evalMatchStatement(astNode as MatchStatement, env);
             case "TryCatchStatement":
                 return await evalTryCatchStatement(astNode as TryCatchStatement, env);
-            case "SquadDeclaration":
-                return await evalSquadDeclaration(astNode as SquadDeclaration, env);
-            case "NamespaceDeclaration":
-                return await evalNamespaceDeclaration(astNode as NamespaceDeclaration, env);
-            case "ImportStatement":
-                return await evalImportStatement(astNode as ImportStatement, env);
-            case "ReturnStatement":
-                const returnStmt = astNode as ReturnStatement;
-                const value = returnStmt.argument ? await evaluate(returnStmt.argument, env) : MK_NULL();
-                throw new ReturnException(value);
             case "BreakStatement":
                 throw new BreakException();
             case "ContinueStatement":
                 throw new ContinueException();
-
-            // Built-in statements
+            case "ReturnStatement": {
+                const returnStmt = astNode as ReturnStatement;
+                const value = returnStmt.argument ? await evaluate(returnStmt.argument, env) : MK_NULL();
+                throw new ReturnException(value);
+            }
             case "SayStatement":
                 return await evalSayStatement(astNode as SayStatement, env);
-            case "NaturalCommandStmt":
-                return await evalNaturalCommandStmt(astNode as NaturalCommandStmt, env);
-            case "JsBlock":
-                return await evalJsBlock(astNode as JsBlock, env);
-            case "FlexStatement":
-                return await evalFlexStatement(astNode as FlexStatement, env);
             case "PushStatement":
                 return await evalPushStatement(astNode as PushStatement, env);
-            case "OnceStatement":
-                return await evalOnceStatement(astNode as OnceStatement, env);
             case "PopStatement":
                 return await evalPopStatement(astNode as PopStatement, env);
-
+            case "NamespaceDeclaration":
+                return await evalNamespaceDeclaration(astNode as NamespaceDeclaration, env);
+            case "ImportStatement":
+                return await evalImportStatement(astNode as ImportStatement, env);
+            case "SquadDeclaration":
+                return await evalSquadDeclaration(astNode as SquadDeclaration, env);
+            case "NaturalCommandStmt":
+                return await evalNaturalCommandStmt(astNode as NaturalCommandStmt, env);
+            case "ServeStatement":
+                return await evalServeStatement(astNode as ServeStatement, env);
+            case "JsBlock": {
+                const jsNode = astNode as JsBlock;
+                try {
+                    const func = new Function("env", "__vybe_runtime", jsNode.code);
+                    const jsRes = func(env, { wrapJsValue, unwrapVybeValue, MK_NUMBER, MK_STRING, MK_BOOL, MK_NULL });
+                    return wrapJsValue(jsRes);
+                } catch (e: any) {
+                    throw new VybeError("JS Interop Error", e.message, jsNode.line || 1, 1);
+                }
+            }
+            case "OnceStatement":
+                return await evalOnceStatement(astNode as OnceStatement, env);
+            case "FlexStatement":
+                return await evalFlexStatement(astNode as FlexStatement, env);
+            case "SayExpr":
+                return await evalSayExpr(astNode as SayExpr, env);
             default:
                 throw new VybeError("Runtime Error", `Unsupported AST node: ${astNode.kind}`, (astNode as any).line || 1, (astNode as any).column || 1);
         }
-    } catch (e) {
-        if (e instanceof VybeError || e instanceof BreakException || e instanceof ContinueException || e instanceof ReturnException) {
+
+    } catch (e: any) {
+        if ((e && e.name === "VybeError") || (e && typeof e === "object" && ("kind" in e) && ["break", "continue", "return"].includes(e.kind))) {
             throw e;
         }
+
         const errMsg = e instanceof Error ? e.message : String(e);
         const category = errMsg.includes("cooked yet") || errMsg.includes("already cooked") ? "Reference Error" : "Runtime Error";
         throw new VybeError(category, errMsg, (astNode as any).line || 1, (astNode as any).column || 1);
@@ -132,7 +167,12 @@ export async function evaluate(astNode: Stmt, env: Environment): Promise<Runtime
 // --- EXPRESSIONS ---
 
 async function evalIdentifier(ident: Identifier, env: Environment): Promise<RuntimeVal> {
-    return env.lookupVar(ident.symbol);
+    try {
+        const val = env.lookupVar(ident.symbol);
+        return val;
+    } catch (e) {
+        return MK_STRING(ident.symbol);
+    }
 }
 
 async function evalAssignment(node: AssignmentExpr, env: Environment): Promise<RuntimeVal> {
@@ -160,7 +200,11 @@ async function evalAssignment(node: AssignmentExpr, env: Environment): Promise<R
 
     if (node.assignee.kind === "Identifier") {
         const varname = (node.assignee as Identifier).symbol;
-        return env.assignVar(varname, rhsValue);
+        try {
+            return env.assignVar(varname, rhsValue);
+        } catch (e) {
+            return env.declareVar(varname, rhsValue);
+        }
     }
 
     if (node.assignee.kind === "MemberExpr") {
@@ -239,6 +283,16 @@ async function evalConditionalExpr(expr: ConditionalExpr, env: Environment): Pro
     return await evaluate(expr.falseExpr, env);
 }
 
+async function evalNullCoalescingExpr(expr: NullCoalescingExpr, env: Environment): Promise<RuntimeVal> {
+    try {
+        const leftVal = await evaluate(expr.left, env);
+        if (leftVal.type !== "null") {
+            return leftVal;
+        }
+    } catch (e) {}
+    return await evaluate(expr.right, env);
+}
+
 async function evalOnceStatement(stmt: OnceStatement, env: Environment): Promise<RuntimeVal> {
     if (!onceExecuted.has(stmt.id)) {
         onceExecuted.add(stmt.id);
@@ -255,16 +309,14 @@ async function evalBinaryExpr(binop: BinaryExpr, env: Environment): Promise<Runt
         return evalNumericBinaryExpr(lhs as NumberVal, rhs as NumberVal, binop.operator);
     }
 
-    // String concatenation
     if (binop.operator === "+") {
         if (lhs.type === "string" || rhs.type === "string") {
-            const lstr = lhs.type === "string" ? (lhs as StringVal).value : (lhs as NumberVal).value?.toString();
-            const rstr = rhs.type === "string" ? (rhs as StringVal).value : (rhs as NumberVal).value?.toString();
+            const lstr = lhs.type === "string" ? (lhs as StringVal).value : getPrintable(lhs);
+            const rstr = rhs.type === "string" ? (rhs as StringVal).value : getPrintable(rhs);
             return MK_STRING(lstr + rstr);
         }
     }
 
-    // Logical operators
     if (binop.operator === "and" || binop.operator === "or") {
         const lval = lhs.type === "boolean" ? (lhs as BooleanVal).value : !!(lhs as NumberVal).value;
         const rval = rhs.type === "boolean" ? (rhs as BooleanVal).value : !!(rhs as NumberVal).value;
@@ -273,7 +325,6 @@ async function evalBinaryExpr(binop: BinaryExpr, env: Environment): Promise<Runt
         if (binop.operator === "or") return MK_BOOL(lval || rval);
     }
 
-    // Comparisons
     if (binop.operator === "==") {
         if (lhs.type === "number" && rhs.type === "number") return MK_BOOL((lhs as NumberVal).value === (rhs as NumberVal).value);
         if (lhs.type === "string" && rhs.type === "string") return MK_BOOL((lhs as StringVal).value === (rhs as StringVal).value);
@@ -311,9 +362,45 @@ function evalNumericBinaryExpr(lhs: NumberVal, rhs: NumberVal, operator: string)
     return MK_NUMBER(result);
 }
 
+async function evalRangeExpr(node: RangeExpr, env: Environment): Promise<RuntimeVal> {
+    const start = await evaluate(node.left, env);
+    const end = await evaluate(node.right, env);
+    if (start.type !== "number" || end.type !== "number") {
+        throw new VybeError("Type Error", "Range bounds must be numbers", node.line || 1, 1);
+    }
+    const elements: RuntimeVal[] = [];
+    const s = (start as NumberVal).value;
+    const e = (end as NumberVal).value;
+    if (s <= e) {
+        for (let i = s; i <= e; i++) elements.push(MK_NUMBER(i));
+    } else {
+        for (let i = s; i >= e; i--) elements.push(MK_NUMBER(i));
+    }
+    return MK_LIST(elements);
+}
+
+async function evalServeStatement(node: ServeStatement, env: Environment): Promise<RuntimeVal> {
+    return MK_NULL(); // Not supported in browser
+}
+
+async function evalFunctionCall(func: FunctionVal, args: RuntimeVal[], env: Environment): Promise<RuntimeVal> {
+    const scope = new Environment(func.declarationEnv);
+    for (let i = 0; i < func.parameters.length; i++) {
+        scope.declareVar(func.parameters[i], args[i] || MK_NULL());
+    }
+    try {
+        const result = await evalBlockStatement(func.body, scope);
+        return result;
+    } catch (e: any) {
+        if (e && e.kind === "return") return e.value;
+        throw e;
+    }
+}
+
 async function evalCallExpr(call: CallExpr, env: Environment): Promise<RuntimeVal> {
-    const args = await Promise.all(call.args.map(arg => evaluate(arg, env)));
     const fn = await evaluate(call.caller, env);
+    const args = await Promise.all(call.args.map(arg => evaluate(arg, env)));
+
     if (fn.type === "native-fn") {
         return await (fn as NativeFnVal).call(args, env);
     }
@@ -322,22 +409,20 @@ async function evalCallExpr(call: CallExpr, env: Environment): Promise<RuntimeVa
         const func = fn as FunctionVal;
         const scope = new Environment(func.declarationEnv);
 
-        // Bind parameters
         for (let i = 0; i < func.parameters.length; i++) {
             const varname = func.parameters[i];
             scope.declareVar(varname, args[i] || MK_NULL());
         }
 
         try {
-            await evalBlockStatement(func.body, scope);
-        } catch (e) {
-            if (e instanceof ReturnException) {
+            const result = await evalBlockStatement(func.body, scope);
+            return result;
+        } catch (e: any) {
+            if (e && e.kind === "return") {
                 return e.value;
             }
-            throw e; // Bubble up breaks/continues
+            throw e;
         }
-
-        return MK_NULL();
     }
 
     throw `Cannot call value that is not a function: ${JSON.stringify(fn)}`;
@@ -364,11 +449,9 @@ async function evalObjectExpr(obj: ObjectLiteral, env: Environment): Promise<Run
 async function evalMemberExpr(expr: MemberExpr, env: Environment): Promise<RuntimeVal> {
     const object = await evaluate(expr.object, env);
 
-    // List access
     if (object.type === "list") {
         const list = object as ListVal;
 
-        // Native methods
         if (!expr.computed && expr.property.kind === "Identifier") {
             const method = (expr.property as Identifier).symbol;
             if (method === "push") {
@@ -387,11 +470,26 @@ async function evalMemberExpr(expr: MemberExpr, env: Environment): Promise<Runti
             }
         }
 
-        // Numeric indexing
         const indexVal = await evaluate(expr.property, env);
         if (indexVal.type !== "number") throw new VybeError("Type Error", "List index must be a number", expr.line || 1, expr.column || 1);
         const index = (indexVal as NumberVal).value;
         return list.elements[index] || MK_NULL();
+    }
+
+    if (object.type === "native-fn") {
+        const fn = object as NativeFnVal;
+        if (!fn.properties) throw new VybeError("Type Error", `Cannot access properties on primitive function`, expr.line || 1, expr.column || 1);
+        let propertyKey: string;
+        if (expr.computed) {
+            const computedVal = await evaluate(expr.property, env);
+            if (computedVal.type !== "string") throw new VybeError("Type Error", "Computed property must be string", expr.line || 1, expr.column || 1);
+            propertyKey = (computedVal as StringVal).value;
+        } else {
+            propertyKey = (expr.property as Identifier).symbol;
+        }
+        const value = fn.properties.get(propertyKey);
+        if (value === undefined) throw new VybeError("Reference Error", `Property '${propertyKey}' does not exist on function`, expr.line || 1, expr.column || 1);
+        return value;
     }
 
     if (object.type !== "object") {
@@ -435,9 +533,14 @@ async function evalFunctionDeclaration(declaration: FunctionDeclaration, env: En
         name: declaration.name,
         parameters: declaration.parameters,
         declarationEnv: env,
-        body: declaration.body
+        body: declaration.body,
+        isArrow: (declaration as any).isArrow
     };
-    env.declareVar(declaration.name, func);
+
+    if (declaration.name !== "anonymous") {
+        env.declareVar(declaration.name, func);
+    }
+
     return func;
 }
 
@@ -482,9 +585,9 @@ async function evalWhileStatement(whileStmt: WhileStatement, env: Environment): 
 
         try {
             lastEvaluated = await evalBlockStatement(whileStmt.body, env);
-        } catch (e) {
-            if (e instanceof BreakException) break;
-            if (e instanceof ContinueException) continue;
+        } catch (e: any) {
+            if (e && e.kind === "break") break;
+            if (e && e.kind === "continue") continue;
             throw e;
         }
     }
@@ -502,9 +605,9 @@ async function evalLoopStatement(loopStmt: LoopStatement, env: Environment): Pro
     for (let i = 0; i < count; i++) {
         try {
             lastEvaluated = await evalBlockStatement(loopStmt.body, env);
-        } catch (e) {
-            if (e instanceof BreakException) break;
-            if (e instanceof ContinueException) continue;
+        } catch (e: any) {
+            if (e && e.kind === "break") break;
+            if (e && e.kind === "continue") continue;
             throw e;
         }
     }
@@ -526,9 +629,9 @@ async function evalForEachStatement(stmt: ForEachStatement, env: Environment): P
 
         try {
             lastEvaluated = await evalBlockStatement(stmt.body, loopEnv);
-        } catch (e) {
-            if (e instanceof BreakException) break;
-            if (e instanceof ContinueException) continue;
+        } catch (e: any) {
+            if (e && e.kind === "break") break;
+            if (e && e.kind === "continue") continue;
             throw e;
         }
     }
@@ -541,14 +644,11 @@ async function evalTryCatchStatement(stmt: TryCatchStatement, env: Environment):
     try {
         return await evalBlockStatement(stmt.tryBlock, tryEnv);
     } catch (e) {
-        if (e instanceof BreakException || e instanceof ContinueException || e instanceof ReturnException) {
+        if (e && typeof e === "object" && ("kind" in e) && ["break", "continue", "return"].includes((e as any).kind)) {
             throw e;
         }
 
-        // Caught an exception (e.g. panic or throw error)
         const catchEnv = new Environment(env);
-
-        // Inject the error as a bound string
         const errMsg = e instanceof Error ? e.message : String(e);
         catchEnv.declareVar(stmt.catchIdentifier, MK_STRING(errMsg));
 
@@ -572,9 +672,9 @@ async function evalForStatement(stmt: ForStatement, env: Environment): Promise<R
         loopEnv.declareVar(stmt.init, MK_NUMBER(i));
         try {
             lastEvaluated = await evalBlockStatement(stmt.body, loopEnv);
-        } catch (e) {
-            if (e instanceof BreakException) break;
-            if (e instanceof ContinueException) continue;
+        } catch (e: any) {
+            if (e && e.kind === "break") break;
+            if (e && e.kind === "continue") continue;
             throw e;
         }
     }
@@ -624,7 +724,6 @@ async function evalSquadDeclaration(stmt: SquadDeclaration, env: Environment): P
         const initMethod = instance.properties.get("init");
         if (initMethod && initMethod.type === "function") {
             const initEnv = new Environment((initMethod as FunctionVal).declarationEnv);
-            // Bind arguments
             for (let i = 0; i < (initMethod as FunctionVal).parameters.length; i++) {
                 initEnv.declareVar((initMethod as FunctionVal).parameters[i], args[i] || MK_NULL());
             }
@@ -638,116 +737,124 @@ async function evalSquadDeclaration(stmt: SquadDeclaration, env: Environment): P
     return MK_NULL();
 }
 
-async function evalNamespaceDeclaration(stmt: NamespaceDeclaration, env: Environment): Promise<RuntimeVal> {
+async function evalNamespaceDeclaration(node: NamespaceDeclaration, env: Environment): Promise<RuntimeVal> {
     const namespaceEnv = new Environment(env);
-    for (const bodyStmt of stmt.body) {
-        await evaluate(bodyStmt, namespaceEnv);
+    for (const stmt of node.body) {
+        await evaluate(stmt, namespaceEnv);
     }
-    const props = new Map<string, RuntimeVal>();
-    namespaceEnv.getVariables().forEach((val, key) => props.set(key, val));
-    const obj = MK_OBJECT(props);
-    env.declareVar(stmt.name, obj);
-    return MK_NULL();
+    const exportedValues = new Map<string, RuntimeVal>();
+    for (const [key, value] of Array.from(namespaceEnv.getVariables().entries())) {
+        exportedValues.set(key, value);
+    }
+    const objVal = MK_OBJECT(exportedValues);
+    env.declareVar(node.name, objVal);
+    return objVal;
+}
+
+async function evalFetchExpr(node: FetchExpr, env: Environment): Promise<RuntimeVal> {
+    const url = await evaluate(node.url, env);
+    if (url.type !== "string") {
+        throw new VybeError("Type Error", "fetch URL must be a string", node.line || 1, 1);
+    }
+    try {
+        const r = await fetch((url as StringVal).value);
+        const contentType = r.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            try {
+                const json = await r.json();
+                return wrapJsValue(json);
+            } catch (e) {
+                const text = await r.text();
+                return MK_STRING(text);
+            }
+        }
+        const text = await r.text();
+        return MK_STRING(text);
+    } catch (e: any) {
+        throw new VybeError("Runtime Error", `fetch failed: ${e.message}`, node.line || 1, 1);
+    }
+}
+
+async function evalReadExpr(node: ReadExpr, env: Environment): Promise<RuntimeVal> {
+    return MK_STRING("read not available in browser");
+}
+
+async function evalRunExpr(node: RunExpr, env: Environment): Promise<RuntimeVal> {
+    return MK_STRING("run not available in browser");
+}
+
+async function evalNaturalCommandStmt(node: NaturalCommandStmt, env: Environment): Promise<RuntimeVal> {
+    const verb = node.verb;
+    const arg = await evaluate(node.argument, env);
+
+    let result: RuntimeVal = MK_NULL();
+
+    if (verb === "say") {
+        env.say(getPrintable(arg));
+    } else if (verb === "wait") {
+        let ms = 0;
+        if (arg.type === "number") {
+            ms = (arg as NumberVal).value * 1000;
+        } else if (arg.type === "string") {
+            const str = (arg as StringVal).value;
+            if (str.endsWith("ms")) ms = parseFloat(str);
+            else if (str.endsWith("s")) ms = parseFloat(str) * 1000;
+            else ms = parseFloat(str) * 1000;
+        }
+        await new Promise(resolve => setTimeout(resolve, ms));
+    } else if (verb === "fetch") {
+        try {
+            const r = await fetch((arg as StringVal).value);
+            const contentType = r.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                try {
+                    const json = await r.json();
+                    result = wrapJsValue(json);
+                } catch (e) {
+                    result = MK_STRING(await r.text());
+                }
+            } else {
+                result = MK_STRING(await r.text());
+            }
+        } catch (e: any) {
+            throw new VybeError("Runtime Error", `fetch failed: ${e.message}`, node.line || 1, 1);
+        }
+    }
+
+    if (node.destination && node.destination.kind === "Identifier" && verb === "fetch") {
+        const destId = (node.destination as Identifier).symbol;
+        if (env.getVariables().has(destId)) {
+            env.assignVar(destId, result);
+        } else {
+            env.declareVar(destId, result);
+        }
+    }
+
+    return result;
 }
 
 async function evalImportStatement(stmt: ImportStatement, env: Environment): Promise<RuntimeVal> {
-    throw new VybeError("Runtime Error", "Imports are disabled in the browser environment.", stmt.line || 1, stmt.column || 1);
+    return MK_NULL(); // Import not supported in browser playground
 }
 
-// --- BUILT-INS (Gen Z Syntax specific) ---
-
+async function evalSayExpr(expr: SayExpr, env: Environment): Promise<RuntimeVal> {
+    const value = await evaluate(expr.argument, env);
+    if (value.type === "object" || value.type === "list") {
+        env.say(JSON.stringify(unwrapVybeValue(value), null, 2));
+    } else {
+        env.say(getPrintable(value));
+    }
+    return value;
+}
 
 async function evalSayStatement(stmt: SayStatement, env: Environment): Promise<RuntimeVal> {
-    const value = await evaluate(stmt.argument, env);
-    const msg = getPrintable(value);
-    if (env.onOutput) env.onOutput(msg);
-    else console.log(msg);
-    return MK_NULL();
-}
-
-async function evalFetchExpr(expr: FetchExpr, env: Environment): Promise<RuntimeVal> {
-    const urlVal = await evaluate(expr.url, env);
-    if (urlVal.type !== "string") throw new VybeError("Type Error", "fetch requires a string URL", expr.line || 1, expr.column || 1);
-    const url = (urlVal as StringVal).value;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        const convertToRuntime = (val: any): RuntimeVal => {
-            if (val === null) return MK_NULL();
-            if (typeof val === "number") return MK_NUMBER(val);
-            if (typeof val === "string") return MK_STRING(val);
-            if (typeof val === "boolean") return MK_BOOL(val);
-            if (Array.isArray(val)) return MK_LIST(val.map(convertToRuntime));
-            if (typeof val === "object") {
-                const props = new Map<string, RuntimeVal>();
-                for (const k in val) props.set(k, convertToRuntime(val[k]));
-                return MK_OBJECT(props);
-            }
-            return MK_NULL();
-        };
-
-        return convertToRuntime(data);
-    } catch (e) {
-        throw new VybeError("Runtime Error", `Fetch failed: ${e}`, expr.line || 1, expr.column || 1);
-    }
-}
-
-async function evalJsBlock(stmt: JsBlock, env: Environment): Promise<RuntimeVal> {
-    try {
-        // Simple eval-based interop for the playground
-        // We expose the environment to the JS block if possible, or just run it
-        const result = eval(stmt.code);
-        if (result === undefined) return MK_NULL();
-        if (typeof result === "number") return MK_NUMBER(result);
-        if (typeof result === "string") return MK_STRING(result);
-        if (typeof result === "boolean") return MK_BOOL(result);
-        return MK_NULL();
-    } catch (e) {
-        throw new VybeError("Runtime Error", `JS Interop Error: ${e}`, stmt.line || 1, stmt.column || 1);
-    }
-}
-
-async function evalNaturalCommandStmt(stmt: NaturalCommandStmt, env: Environment): Promise<RuntimeVal> {
-    const verb = stmt.verb.toLowerCase();
-    const arg = await evaluate(stmt.argument, env);
-
-    switch (verb) {
-        case "wait": {
-            if (arg.type !== "number") throw new VybeError("Type Error", "wait requires a number", stmt.line || 1, stmt.column || 1);
-            await new Promise(resolve => setTimeout(resolve, (arg as NumberVal).value * 1000));
-            break;
-        }
-        case "fetch": {
-            if (arg.type !== "string") throw new VybeError("Type Error", "fetch requires a string URL", stmt.line || 1, stmt.column || 1);
-            const data = await evalFetchExpr({ kind: "FetchExpr", url: stmt.argument, line: stmt.line, column: stmt.column } as FetchExpr, env);
-            if (stmt.destination && stmt.destination.kind === "Identifier") {
-                env.assignVar((stmt.destination as Identifier).symbol, data);
-            }
-            break;
-        }
-        case "read":
-        case "write":
-        case "delete":
-        case "move":
-        case "run":
-            // Stubbed or basic browser behavior
-            const msg = `[SYSTEM]: Command '${verb}' is restricted in the playground for safety.`;
-            if (env.onOutput) env.onOutput(msg);
-            break;
-        default:
-            throw new VybeError("Runtime Error", `Unknown natural command: ${verb}`, stmt.line || 1, stmt.column || 1);
-    }
-
+    await evalSayExpr(stmt as any as SayExpr, env);
     return MK_NULL();
 }
 
 async function evalFlexStatement(stmt: FlexStatement, env: Environment): Promise<RuntimeVal> {
     const value = await evaluate(stmt.argument, env);
-    const msg = "[FLEX DEV LOG]: " + getPrintable(value);
-    if (env.onOutput) env.onOutput(msg);
-    else console.log(msg);
+    env.say(`[FLEX DEV LOG]: ${getPrintable(value)}`);
     return MK_NULL();
 }
 
@@ -759,7 +866,8 @@ async function evalPushStatement(stmt: PushStatement, env: Environment): Promise
     return MK_NULL();
 }
 
-async function evalPopExpr(expr: any, env: Environment): Promise<RuntimeVal> {
+async function evalPopExpr(expr: { list?: Expr, line?: number, column?: number }, env: Environment): Promise<RuntimeVal> {
+    if (!expr.list) throw new VybeError("Runtime Error", "pop() missing list argument", expr.line || 1, expr.column || 1);
     const list = await evaluate(expr.list, env);
     if (list.type !== "list") throw new VybeError("Type Error", `Cannot pop. Expected list, got ${list.type}`, expr.line || 1, expr.column || 1);
     const popped = (list as ListVal).elements.pop();
@@ -770,13 +878,16 @@ async function evalPopStatement(stmt: PopStatement, env: Environment): Promise<R
     return evalPopExpr(stmt, env);
 }
 
-async function evalPanicExpr(expr: any, env: Environment): Promise<RuntimeVal> {
+async function evalPanicExpr(expr: { argument?: Expr, line?: number, column?: number }, env: Environment): Promise<RuntimeVal> {
+    if (!expr.argument) throw new VybeError("Runtime Error", "panic() missing argument", expr.line || 1, expr.column || 1);
     const msg = await evaluate(expr.argument, env);
     throw new Error((msg.type === "string" ? (msg as StringVal).value : String(msg)));
 }
 
 async function evalAskExpr(expr: AskExpr, env: Environment): Promise<RuntimeVal> {
-    throw new VybeError("Runtime Error", "Interactive prompts ('ask') are currently disabled in the playground.", expr.line || 1, expr.column || 1);
+    const msg = await evaluate(expr.message!, env);
+    const answer = prompt(getPrintable(msg));
+    return MK_STRING(answer || "");
 }
 
 async function evalStashExpr(expr: StashExpr, env: Environment): Promise<RuntimeVal> {
@@ -785,14 +896,14 @@ async function evalStashExpr(expr: StashExpr, env: Environment): Promise<Runtime
 }
 
 async function evalSizeExpr(expr: SizeExpr, env: Environment): Promise<RuntimeVal> {
-    const arg = await evaluate(expr.argument, env);
+    const arg = await evaluate(expr.argument!, env);
     if (arg.type === "list") return MK_NUMBER((arg as ListVal).elements.length);
     if (arg.type === "string") return MK_NUMBER((arg as StringVal).value.length);
     throw new VybeError("Type Error", `Cannot get size of ${arg.type}`, expr.line || 1, expr.column || 1);
 }
 
 async function evalTypeExpr(expr: TypeExpr, env: Environment): Promise<RuntimeVal> {
-    const arg = await evaluate(expr.argument, env);
+    const arg = await evaluate(expr.argument!, env);
     switch (arg.type) {
         case "number": return MK_STRING("number");
         case "string": return MK_STRING("string");

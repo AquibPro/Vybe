@@ -14,24 +14,24 @@ import { VybeError } from "@/lib/vybe/error";
 
 const EXAMPLES = [
     {
-        label: "Hello World",
-        code: `lang = "Vybe"\nver = 2\nsay "Welcome to {lang} v{ver}! 🚀"\nsay "Let's get bussin fr"`
+        label: "The Vibe Check",
+        code: `say "Welcome to Vybe v1.0.0! 🚀"\n\nscore = 85\nsus score > 90 {\n  say "Aura points: +1000 (Elite)"\n} fr score > 50 {\n  say "Status: Bussin (Solid)"\n} nah {\n  say "Status: Skill Issue (Mid)"\n}`
     },
     {
         label: "Natural Commands",
-        code: `say "Wait for it..."\nwait 1.5s\n\nsay "Fetching data from the clouds..."\nfetch "https://api.github.com/repos/vybe-lang/vybe" into repo\n\nsay "Repo name: {repo.name}"\nsay "Stars: {repo.stargazers_count}"`
+        code: `say "Initializing network probe..."\nwait 1s\n\nsay "Fetching data..."\ndata = fetch "https://api.github.com/repos/vybe-lang/vybe"\n\nsus data.status == 200 {\n  say "Bussin! Repository: {data.name}"\n  say "Stars: {data.stargazers_count} ⭐"\n} nah {\n  say "Cap. Request failed."\n}`
     },
     {
-        label: "FizzBuzz",
-        code: `vibe fizzbuzz(n) {\n  each i in 1..n {\n    sus i % 15 == 0 {\n      say "FizzBuzz"\n    } fr i % 3 == 0 {\n      say "Fizz"\n    } fr i % 5 == 0 {\n      say "Buzz"\n    } nah {\n      say "{i}"\n    }\n  }\n}\n\nfizzbuzz(15)`
+        label: "The Bot Squad",
+        code: `gng Defender {\n  init(name) {\n    this.name = name\n    this.power = 100\n  }\n\n  vibe activate() {\n    say "System Online: {this.name}"\n    say "Power Level: {this.power}"\n  }\n}\n\nsquad = [new Defender("V-1"), new Defender("X-9")]\n\neach bot in squad {\n  bot.activate()\n}`
     },
     {
-        label: "JS Interop",
-        code: `say "Running raw JavaScript..."\n\njs { \n  const x = 10;\n  const y = 20;\n  return x + y;\n} into result\n\nsay "Result from JS: {result}"`
+        label: "Iteration Flow",
+        code: `say "Grinding the calculation..."\n\nresults = stash []\n\nfor i = 1..5 {\n  res = i * i\n  push res to results\n}\n\nsay "Results: {results}"\nsay "Final Count: {size(results)}"`
     },
     {
-        label: "Classes",
-        code: `gng Player {\n  init(name) {\n    this.name = name\n    this.hp = 100\n  }\n\n  vibe move() {\n    say "{this.name} moved! HP: {this.hp}"\n  }\n}\n\np = new Player("Aquib")\np.move()`
+        label: "Elite Fallbacks",
+        code: `// The Null Coalescing vibe\nuser_input = ghost\nusername = user_input ?? "Elite_Dev"\n\nsay "Welcome back, {username}!"\n\nonce {\n  say "Core engine initialized."\n}`
     }
 ];
 
@@ -62,13 +62,13 @@ export default function PlaygroundPage() {
         setOutput([]);
         setTimeout(async () => {
             try {
-                const logs: string[] = [];
-                const env = createGlobalEnv({}, (msg) => logs.push(msg));
+                const env = createGlobalEnv({}, (msg: string) => {
+                    setOutput(prev => [...prev, msg]);
+                });
                 const tokens = tokenize(code);
                 const parser = new Parser();
                 const ast = parser.produceAST(tokens);
                 await evaluate(ast, env);
-                setOutput([...logs]);
             } catch (e: any) {
                 if (e instanceof VybeError) {
                     const VYBE_MSGS = [
@@ -80,7 +80,7 @@ export default function PlaygroundPage() {
                         "Deadass something broke here."
                     ];
                     const randMsg = VYBE_MSGS[Math.floor(Math.random() * VYBE_MSGS.length)];
-                    const lines = code.split('n');
+                    const lines = code.split('\n');
                     const errLine = lines[(e.line || 1) - 1] || "";
                     const col = Math.max(1, e.column || 1);
                     const pointer = " ".repeat(col - 1) + "^";
@@ -97,7 +97,7 @@ export default function PlaygroundPage() {
                         ``,
                         `🔥  Vybe says: ${randMsg}`,
                         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-                    ].join('n');
+                    ].join('\n');
                     setError(block);
                 } else {
                     setError(e instanceof Error ? e.message : String(e));

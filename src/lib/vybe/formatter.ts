@@ -85,7 +85,7 @@ export function tokenizeForFormatter(source: string): FormatToken[] {
 
         // Operators
         const twoCharOp = source.substring(pos, pos + 2);
-        if (["==", "!=", ">=", "<=", "->", "=>", "|>", "+=", "-=", "*=", "/=", "%=", "++", "--"].includes(twoCharOp)) {
+        if (["==", "!=", ">=", "<=", "->", "=>", "|>", "+=", "-=", "*=", "/=", "%=", "++", "--", "..", "??"].includes(twoCharOp)) {
             tokens.push({ type: "operator", value: twoCharOp });
             pos += 2;
             continue;
@@ -141,17 +141,18 @@ export class Formatter {
             }
         }
 
-        const initialLines: FormatToken[][] = [[]];
         const statementStarters = new Set([
             "vibe", "cook", "spill", "say", "sus", "nah", "maybe", "grind", "each",
             "yo", "zone", "squad", "gng", "yeet", "crash", "for", "match", "try",
-            "catch", "bounce", "skip", "push", "pop", "once", "flex", "ask", "await"
+            "catch", "bounce", "skip", "push", "pop", "once", "flex", "ask", "await", "serve"
         ]);
+
+        const initialLines: FormatToken[][] = [[]];
 
         const noBreakBeforeMap = new Set([
             "=", "+", "-", "*", "/", ">", "<", ">=", "<=", "==", "!=",
-            "(", "[", ":", "?", ",", "in", "to", "=>", "->", "|>",
-            "+=", "-=", "*=", "/=", "%=", "++", "--"
+            "(", "[", ":", "?", ",", "in", "to", "into", "with", "=>", "->", "|>",
+            "+=", "-=", "*=", "/=", "%=", "++", "--", "??"
         ]);
 
         for (let i = 0; i < meaningfulTokens.length; i++) {
@@ -202,13 +203,12 @@ export class Formatter {
                     forceBreak = true;
                 }
 
-                // Force break after {
                 if (prev.value === "{") {
                     forceBreak = true;
                 }
 
                 if (t.type === "word" && (prev.type === "number" || prev.type === "string" || prev.value === ")" || prev.value === "]")) {
-                    if (!["in", "to"].includes(t.value)) {
+                    if (!["in", "to", "into", "with"].includes(t.value)) {
                         forceBreak = true;
                     }
                 }
@@ -226,7 +226,7 @@ export class Formatter {
 
         const blockStarters = new Set([
             "vibe", "sus", "maybe", "nah", "each", "spin", "grind",
-            "once", "try", "catch", "squad", "gng", "match", "zone"
+            "once", "try", "catch", "squad", "gng", "match", "zone", "serve"
         ]);
 
         for (const line of initialLines) {
@@ -241,11 +241,9 @@ export class Formatter {
                         const lastToken = prevLine[prevLine.length - 1];
                         const firstToken = line[0];
 
-                        // Insert blank line before block
                         if (firstToken.type === "word" && blockStarters.has(firstToken.value) && lastToken.value !== "{") {
                             finalLines.push([]);
                         }
-                        // Insert blank line after block
                         else if (lastToken.value === "}") {
                             finalLines.push([]);
                         }
@@ -300,10 +298,10 @@ export class Formatter {
                     if (prev.value === ",") space = true;
                     if (prev.value === ":") space = true;
                     if (t.value === ":") space = true;
-                    // No space after colon if it's inside a string somehow (shouldn't happen since strings are whole tokens)
                     if (prev.value === "?") space = true;
                     if (t.value === "?") space = true;
                     if (t.value === "=>" || prev.value === "=>" || t.value === "->" || prev.value === "->") space = true;
+                    if (t.value === ".." || prev.value === "..") space = false;
 
                     if (t.value === "++" && prev.type === "word") space = false;
                     if (t.value === "--" && prev.type === "word") space = false;
