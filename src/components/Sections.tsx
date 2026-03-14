@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Coffee, MessageCircle, Download, Github, Layout, Package, Terminal as TerminalIcon } from "lucide-react";
+import { Coffee, MessageCircle, Download, Github, Layout, Package, Terminal as TerminalIcon, Copy, Check, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -156,7 +156,99 @@ export function Installation() {
             </div>
         </section>
     );
+}export function VSCodeExtension() {
+    const [copied, setCopied] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+    
+    useEffect(() => { setIsMounted(true); }, []);
+
+    const copyCommand = () => {
+        navigator.clipboard.writeText("code --install-extension vybe-lang.vybe");
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const methods = [
+        {
+            name: "VS Marketplace",
+            icon: <Layout className="w-12 h-12 mb-6 text-vybe-blue" />,
+            subtitle: "Web Browser",
+            label: "Visit Marketplace",
+            link: "https://marketplace.visualstudio.com/items?itemName=vybe-lang.vybe",
+            type: "link"
+        },
+        {
+            name: "VS Code CLI",
+            icon: <TerminalIcon className="w-12 h-12 mb-6 text-vybe-blue" />,
+            subtitle: "Command Line",
+            label: "code --install-extension vybe-lang.vybe",
+            type: "command"
+        }
+    ];
+
+    return (
+        <section id="vscode" className="py-24 relative overflow-hidden bg-vybe-dark/30">
+            <div className="container mx-auto px-6">
+                <div className="max-w-5xl mx-auto glass rounded-[2.5rem] p-8 md:p-16 border border-vybe-blue/20 relative shadow-[0_0_50px_rgba(44,185,255,0.05)]">
+                    <div className="text-center mb-16">
+                        <h2 className="text-sm font-bold uppercase tracking-[0.3em] gradient-text mb-4">Editor Support</h2>
+                        <h3 className="text-4xl md:text-5xl font-black mb-4">Official <span className="gradient-text italic">VS Code</span> Extension</h3>
+                        <p className="text-white/60 max-w-2xl mx-auto">
+                            Get the best developer experience for <span className="text-white font-bold">.vybe</span> files. 
+                            Syntax highlighting, intelligent autocompletion, and real-time linting—proudly verified.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        {methods.map((method, i) => (
+                            <motion.div
+                                key={i}
+                                whileHover={{ y: -10, scale: 1.02 }}
+                                className="p-8 rounded-[2rem] flex flex-col items-center text-center transition-all duration-300 bg-white/5 border border-white/10 hover:border-vybe-blue/50 hover:bg-vybe-blue/5 shadow-lg"
+                            >
+                                {method.icon}
+                                <h4 className="text-2xl font-black mb-1 text-white">{method.name}</h4>
+                                <p className="text-xs text-white/40 mb-8 font-medium uppercase tracking-widest">{method.subtitle}</p>
+                                
+                                {method.type === "link" ? (
+                                    <a 
+                                        href={method.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full btn-premium py-4 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 group"
+                                    >
+                                        {method.label} <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                                    </a>
+                                ) : (
+                                    <button 
+                                        onClick={copyCommand}
+                                        className="w-full relative group/cmd"
+                                    >
+                                        <div className="w-full py-4 rounded-xl border border-white/10 text-[10px] font-mono text-vybe-blue bg-black/40 px-4 break-all min-h-[56px] flex items-center justify-center">
+                                            {method.label}
+                                        </div>
+                                        <div className="absolute inset-0 flex items-center justify-center bg-vybe-blue rounded-xl opacity-0 group-hover/cmd:opacity-100 transition-opacity">
+                                            <span className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-2">
+                                                {copied ? <><Check className="w-4 h-4" /> Copied</> : <><Copy className="w-4 h-4" /> Copy Command</>}
+                                            </span>
+                                        </div>
+                                    </button>
+                                )}
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    <div className="mt-16 text-center">
+                        <p className="text-xs text-white/30 font-medium italic">
+                            &quot;Recommended for all developers editing .vybe source files.&quot;
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
 }
+
 
 export function Community() {
     const [isMounted, setIsMounted] = useState(false);
