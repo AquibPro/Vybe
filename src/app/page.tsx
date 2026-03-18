@@ -9,6 +9,7 @@ import FeatureHighlight from "@/components/FeatureHighlight";
 import Timeline from "@/components/Timeline";
 import { VybeIdentity, TinyGameShowcase } from "@/components/Showcases";
 import Terminal from "@/components/Terminal";
+import SupportVybe from "@/components/SupportVybe";
 import Ecosystem, { Installation, VSCodeExtension, Community, Footer } from "@/components/Sections";
 
 export default function Home() {
@@ -30,6 +31,7 @@ export default function Home() {
       <Installation />
       <VSCodeExtension />
       <Community />
+      <SupportVybe />
       <Footer />
     </main>
   );

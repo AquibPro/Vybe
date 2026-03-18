@@ -22,8 +22,8 @@ const comparisons = [
     },
     {
         label: "Loops",
-        traditional: { lang: "Python", code: `for i in range(1, 6):\n    print(f"Round {i}")` },
-        vybe: { code: `for i = 1..5 {\n  say "Round {i}"\n}` }
+        traditional: { lang: "Java", code: `for (int i = 1; i <= 5; i++) {\n    System.out.println("Round " + i);\n}` },
+        vybe: { code: `grind 5 -> say "Round {it}"` }
     },
     {
         label: "File Ops",
@@ -34,17 +34,17 @@ const comparisons = [
         vybe: { code: `data = read "vibe.txt"\nmove "a.txt" to "b.txt"` }
     },
     {
-        label: "Web Requests",
+        label: "HTTP Requests",
         traditional: {
-            lang: "Node.js",
-            code: `const res = await fetch(url);\nconst data = await res.json();\nsay(data.status);`
+            lang: "JavaScript",
+            code: `fetch(url)\n  .then(res => res.json())\n  .then(data => console.log(data));`
         },
-        vybe: { code: `data = fetch url\nsay data.status` }
+        vybe: { code: `data = fetch url\nsay data` }
     },
     {
-        label: "Variables",
-        traditional: { lang: "Java", code: `int age = 24;\nString name = "Aquib";\nboolean isElite = true;` },
-        vybe: { code: `age = 24\nname = "Aquib"\nisElite = frfr` }
+        label: "Modern Interop",
+        traditional: { lang: "JS (Mixed)", code: `let data = "secret";\n// How to run this in Vybe?\n// You usually can't.` },
+        vybe: { code: `js {\n  console.log("I am JS")\n}\nsay "I am Vybe"` }
     }
 ];
 

@@ -5,33 +5,34 @@ export default function LicensePage() {
                 <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-vybe-purple border border-vybe-purple/20 px-4 py-2 rounded-full mb-8">
                     <span>✦</span> Legal
                 </div>
-                <h1 className="text-4xl md:text-5xl font-black italic mb-12">MIT License</h1>
+                <h1 className="text-4xl md:text-5xl font-black italic mb-12">Vybe Software License</h1>
 
                 <div className="space-y-6 text-white/70 leading-relaxed font-mono text-sm bg-white/5 p-8 rounded-2xl border border-white/10">
-                    <p>Copyright (c) 2026 Vybe Core Team</p>
+                    <p>Copyright (c) 2026 Vybe Core Team. All Rights Reserved.</p>
 
+                    <h2 className="text-white font-bold mt-8 mb-4 uppercase tracking-wider">1. Grant of License</h2>
                     <p>
-                        Permission is hereby granted, free of charge, to any person obtaining a copy
-                        of this software and associated documentation files (the &quot;Software&quot;), to deal
-                        in the Software without restriction, including without limitation the rights
-                        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-                        copies of the Software, and to permit persons to whom the Software is
-                        furnished to do so, subject to the following conditions:
+                        Vybe is provided as a tool for software development. You are granted a limited, non-exclusive, non-transferable license to use Vybe for the purpose of developing, compiling, and running software applications.
                     </p>
 
+                    <h2 className="text-white font-bold mt-8 mb-4 uppercase tracking-wider">2. Restrictions</h2>
                     <p>
-                        The above copyright notice and this permission notice shall be included in all
-                        copies or substantial portions of the Software.
+                        You are strictly prohibited from:
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2">
+                        <li>Modifying, reverse-engineering, or altering the Vybe compiler, runtime, or core libraries.</li>
+                        <li>Claiming ownership of the Vybe programming language, its syntax, or its underlying technology.</li>
+                        <li>Copying, redistributing, or selling the Vybe software itself as a standalone product or under a different name.</li>
+                        <li>Using Vybe to create a fork or derivative programming language that competes with Vybe.</li>
+                    </ul>
+
+                    <h2 className="text-white font-bold mt-8 mb-4 uppercase tracking-wider">3. Ownership</h2>
+                    <p>
+                        The Vybe programming language, including its compiler, documentation, and brand, remains the sole property of the Vybe Core Team. Using Vybe to build applications does not grant you any rights to the language itself.
                     </p>
 
-                    <p>
-                        THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-                        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-                        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-                        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-                        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-                        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-                        SOFTWARE.
+                    <p className="mt-12 pt-8 border-t border-white/10 italic">
+                        By using Vybe, you agree to these terms. Failure to comply will result in the immediate termination of your license to use the software.
                     </p>
                 </div>
             </div>

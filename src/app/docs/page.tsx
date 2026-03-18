@@ -12,184 +12,85 @@ const docSections = [
         title: "Introduction",
         icon: Book,
         description: "Vision, philosophy, and the Vybe aesthetic.",
-        content: `Vybe is not just another programming language; it's a **cultural shift** in software development. Designed by Aquib Khan, it targets the high-performance needs of modern systems while maintaining a syntax that feels natural, expressive, and "elite."
+        content: `Vybe is a modern, high-performance programming language designed by **Aquib Khan**. It bridges the gap between low-level efficiency and high-level expressiveness. 
 
-**The Zero-Friction Vision**
-Traditional languages force you to write for the machine. Vybe forces the machine to understand you. We've removed the boilerplate that kills flow, allowing you to go from thought to execution in seconds.
+**The Vision**
+Traditional programming often feels like mechanical translation. Vybe maps human culture and intent directly to machine instructions. We've removed the legacy boilerplate that kills developer flow, allowing you to go from a conceptual "vibe" to a running system in seconds.
 
-**Core Philosophy**
-- **Implicit Intelligence**: We've removed explicit type declarations (\`int\`, \`string\`) and variable keywords (\`let\`, \`const\`). If you assign it, it exists.
-- **Natural Verbs**: Actions like \`say\`, \`ask\`, \`wait\`, and \`fetch\` are first-class keywords, not library functions.
-- **Async by Design**: Every I/O operation in Vybe is non-blocking. The language handles the event loop so you don't have to.
-- **Generation-Z Lexicon**: We've replaced legacy jargon with expressive alternatives that map more accurately to human intent.`,
+**Core Pillars**
+- **Dynamic & Implicit**: No more \`int\`, \`string\`, or \`let\`. Assign a value, and it exists.
+- **Natural Language**: Actions like \`say\`, \`ask\`, \`wait\`, and \`fetch\` are first-class keywords.
+- **Elite Performance**: Compiles to optimized JavaScript for the V8 engine, with a zero-overhead runtime.
+- **Modern Ecosystem**: Built-in support for NPM packages and direct JavaScript interop.`,
         examples: [
             {
                 label: "The Ultimate Hello",
                 code: `say "Welcome to Vybe! 🚀"\nsay "Let's get bussin fr"`
             },
             {
-                label: "Quick Interaction",
-                code: `user = ask "Who's there?"\nsay "Welcome to the elite club, {user}!"`
-            }
-        ]
-    },
-    {
-        id: "keywords",
-        title: "Keyword Dictionary",
-        icon: SpellCheck,
-        description: "Complete lexicon of the Vybe language.",
-        content: `Vybe uses a carefully curated set of keywords designed to be expressive and memorable.
-
-**Logic & Control Flow**
-- **sus**: Starts a conditional block (\`if\`).
-- **fr**: Continues a conditional chain (\`else if\`).
-- **nah**: The final fallback (\`else\`).
-- **match**: Pattern matching for complex branching.
-- **try / catch**: Error handling blocks.
-
-**Iteration & Loops**
-- **grind**: Repeat a block a fixed number of times.
-- **for**: Range-based iteration (e.g., \`1..10\`).
-- **each**: Collection-based iteration (lists/objects).
-- **spin**: Condition-based iteration (\`while\`).
-- **bounce**: Break out of the current loop.
-- **skip**: Jump to the next iteration.
-
-**Natural Commands**
-- **say**: Output data to the terminal.
-- **ask**: Capture user input.
-- **wait**: Pause execution (supports \`s\`, \`ms\`).
-- **fetch**: Perform HTTP requests.
-- **read / write**: File system operations.
-- **move / delete**: OS file management.
-
-**Data & Structure**
-- **vibe**: Declares a function.
-- **gng / squad**: Declares a class/module.
-- **stash**: Creates a list.
-- **ghost**: Represents null/nothing.
-- **frfr / cap**: Boolean True and False.
-- **once**: Code that runs only a single time ever.
-- **zone**: Defines a recursive namespace.`,
-        examples: [
-            {
-                label: "Lexicon in Action",
-                code: `status = "cooking"\nsus status == "cooking" {\n  say "Let him cook!"\n} fr status == "finished" {\n  say "Served."\n} nah {\n  say "Mid."\n}`
+                label: "Aura Check",
+                code: `name = "Aquib"\naura = 9000\nsay "{name}'s aura level: {aura}"`
             }
         ]
     },
     {
         id: "variables",
-        title: "Variables & Types",
+        title: "Variables & State",
         icon: Hash,
-        description: "Dynamic state and built-in primitives.",
-        content: `Variables in Vybe are **implicitly declared** and **dynamically typed**. You don't need to specify types or use keywords like \`let\` or \`var\`.
+        description: "Implicit declarations and dynamic typing.",
+        content: `In Vybe, variables are **implicitly declared**. You don't need \`let\`, \`const\`, or \`var\`. 
 
-**Basic Types**
-- **Numbers**: Standard 64-bit floats. \`score = 100\`
-- **Strings**: Unicode text. \`name = "Aquib"\`
-- **Booleans**: \`frfr\` (true) and \`cap\` (false).
-- **Ghost**: Represents the absence of a value (\`null\`).
+**Assignment**
+Simply use the equals sign to create or update a variable.
+\`score = 100\`
+\`name = "Elite User"\`
 
-**String Interpolation**
-Vybe features premium string interpolation using curly braces:
-\`say "Hello, {user}! Your score is {points}."\`
+**Reassignment**
+While initial assignment is implicit, you can use the \`swap\` keyword for explicit reassignment if you find it clarifies your intent (though it's optional in most cases).
+\`swap score = 150\`
 
-**Null Coalescing (The Fallback)**
-Use the \`??\` operator to handle \`ghost\` values gracefully:
-\`display_name = input ?? "Anonymous"\`
+**Constants**
+Vybe treats all top-level variables as stable. However, if you're coming from JS, remember that you don't need any prefix to start "cooking" with data.
 
-**Compound Assignment**
-Standard operators for updating state: \`+=\`, \`-=\`, \`*=\`, \`/=\`, \`%=\`.`,
+**Null Safety**
+The \`ghost\` keyword represents null. Use the \`??\` (Nothingness Fallback) to handle potential ghosts.
+\`display = username ?? "Guest"\``,
         examples: [
             {
-                label: "State Management",
+                label: "Variables in Action",
                 code: `points = 10\npoints += 5\n\nleader = "Aquib"\nsay "Player: {leader}, Score: {points}"\n\nstatus = ghost\nsay "Status: {status ?? 'Checking...'}"`
             }
         ]
     },
     {
-        id: "collections",
-        title: "Lists & Objects",
-        icon: List,
-        description: "Working with Stash and Object literals.",
-        content: `Vybe provides robust support for structured data through Lists (Stash) and Objects.
+        id: "keywords",
+        title: "The Dictionary",
+        icon: SpellCheck,
+        description: "A complete guide to Vybe's lexicon.",
+        content: `Vybe's syntax is powered by expressive keywords that replace dry, traditional alternatives.
 
-**Lists (Stash)**
-Initialize a list using the \`stash\` keyword or square brackets:
-\`inventory = stash ["axe", "shield"]\`
-\`inventory = ["axe", "shield"]\`
+**Control Flow**
+- **sus**: If (Check a condition)
+- **fr**: Else If (Further check)
+- **nah**: Else (Fallback)
+- **match**: Detailed pattern matching
+- **bounce / skip**: Break and Continue
 
-**List Operations**
-- **push**: Add an item to a list (\`push "pot" to inventory\`).
-- **pop**: Remove the last item (\`last = pop stash\`).
-- **size**: Get the length (\`n = size(stash)\`).
+**Values**
+- **frfr**: True
+- **cap**: False
+- **ghost**: Null
+- **it**: Default iterator in \`grind\` loops
 
-**Objects**
-Objects are key-value pairs created with curly braces:
-\`player = { "name": "Aquib", "hp": 100 }\`
-
-**Accessing Data**
-Use dot notation or brackets:
-\`name = player.name\`
-\`hp = player["hp"]\``,
+**Structure**
+- **vibe**: Function declaration
+- **gng / squad**: Class / Module declaration
+- **zone**: Namespace
+- **stash**: List (Array) initialization`,
         examples: [
             {
-                label: "Inventory System",
-                code: `items = ["sword", "map"]\npush "potion" to items\n\nsay "Inventory size: {size(items)}"\neach item in items {\n  say "You have: {item}"\n}\n\nconfig = { "ver": "1.0", "env": "prod" }\nsay "Running version {config.ver}"`
-            }
-        ]
-    },
-    {
-        id: "functions",
-        title: "Functions (vibe)",
-        icon: FunctionSquare,
-        description: "The core unit of logic in Vybe.",
-        content: `Functions are declared using the **vibe** keyword. They are first-class, meaning they can be assigned to variables and passed as arguments.
-
-**Standard Declaration**
-\`vibe add(a, b) {\n  return a + b\n}\`
-
-**Arrow Functions**
-For concise logic, use the arrow (\`->\`) syntax:
-\`square = (n) -> n * n\`
-
-**Async Vibes**
-Functions can be marked as \`async\` to enable non-blocking behavior:
-\`async vibe load() {\n  data = await fetch "api/data"\n  return data\n}\`
-
-**Anonymous Functions**
-Often used as callbacks or for immediate execution:
-\`(msg) -> say "LOG: {msg}"\``,
-        examples: [
-            {
-                label: "Aura Calculator",
-                code: `vibe calculate_aura(score) {\n  return score * 10\n}\n\n// Arrow usage\nget_title = (points) -> pts > 1000 ? "Elite" : "Mid"\n\nsay "Aura: {calculate_aura(50)}"\npts = 1500\nsay "Rank: {get_title(pts)}"`
-            }
-        ]
-    },
-    {
-        id: "control-flow",
-        title: "Control Flow",
-        icon: GitBranch,
-        description: "Branching and logical decision making.",
-        content: `Vybe replaces confusing legacy conditionals with a more natural sounding flow.
-
-**Sus - Nah Logic**
-- **sus**: The primary check.
-- **fr**: Secondary checks (else if).
-- **nah**: The final fallback (else).
-
-**Pattern Matching**
-The \`match\` statement is the ultimate tool for handling multiple states:
-\`match status {\n  "loading" => say "Wait..."\n  "success" => say "Done!"\n  _         => say "Error"\n}\`
-
-**Comparison Operators**
-Vybe uses the standard \`==\`, \`!=\`, \`>\`, \`<\`, \`>=\`, \`<=\`.`,
-        examples: [
-            {
-                label: "The Vibe Check",
-                code: `score = 85\n\nsus score > 90 {\n  say "Straight Elite!"\n} fr score > 50 {\n  say "Bussin."\n} nah {\n  say "L + Ratio."\n}\n\nmode = "dark"\nmatch mode {\n  "light" => say "Flashbang!"\n  "dark"  => say "Cool eyes."\n}`
+                label: "The Logic Flow",
+                code: `vibe check_vibe(aura) {\n  sus aura > 1000 {\n    say "Elite status frfr"\n  } fr aura > 0 {\n    say "Valid."\n  } nah {\n  say "Cap detected."\n  }\n}`
             }
         ]
     },
@@ -197,181 +98,160 @@ Vybe uses the standard \`==\`, \`!=\`, \`>\`, \`<\`, \`>=\`, \`<=\`.`,
         id: "loops",
         title: "Loops & Iteration",
         icon: Repeat,
-        description: "Efficient ways to repeat logic.",
-        content: `Vybe offers four distinct ways to iterate, depending on your needs.
+        description: "Grinding through collections and ranges.",
+        content: `Iteration in Vybe is designed to be concise.
 
-**1. Range-based (for)**
-Best for iterating through a set of numbers:
-\`for i = 1..10 { say i }\`
+**The Grind (Fixed Count)**
+Use \`grind\` to repeat logic a specific number of times. It automatically provides an \`it\` variable for the current index.
+\`grind 5 -> say "Round {it}"\`
 
-**2. Collection-based (each)**
-Perfect for lists and objects:
-\`each item in stash { say item }\`
+**The Each (Collections)**
+Iterate through lists (stashes) or objects with ease.
+\`each item in inventory { say item }\`
 
-**3. Fixed-count (grind)**
-When you just want to repeat something N times:
-\`grind 5 { say "repeat" }\`
+**The Range Loop**
+Classic range-based iteration using the \`..\` operator.
+\`for i = 1..10 { say "Number {i}" }\`
 
-**4. Conditional (spin)**
-The traditional \`while\` loop for dynamic conditions:
-\`spin count < 10 { count += 1 }\`
-
-**Loop Control**
-- **bounce**: Stop the loop immediately.
-- **skip**: Skip the rest of the current turn and continue.`,
+**The Spin (While)**
+Loop as long as a condition is met.
+\`spin score < 100 { score += 1 }\``,
         examples: [
             {
-                label: "Loop Variety",
-                code: `say "Counting to 3:"\nfor i = 1..3 { say i }\n\nsay "Each member:"\nteam = ["Aquib", "Dev", "Lead"]\neach name in team { say name }\n\nsay "Grinding 2 times:"\ngrind 2 { say "Spinning..." }`
+                label: "Iteration Showcase",
+                code: `say "Counting down:"\nfor i = 5..1 {\n  say i\n  wait 1s\n}\nsay "Blasted off! 🚀"`
             }
         ]
     },
     {
-        id: "classes",
-        title: "Classes (gng/squad)",
-        icon: Layers,
-        description: "Object-oriented structures for elite systems.",
-        content: `Vybe uses the **gng** (Gang) keyword to define blueprints for objects. It provides a clean, class-based structure.
+        id: "functions",
+        title: "Functions & Vibes",
+        icon: FunctionSquare,
+        description: "Defining logic with vibe and arrows.",
+        content: `Functions (or **vibes**) are first-class citizens in Vybe.
 
-**Constructors (init)**
-Every \`gng\` can have an \`init\` function which runs when a new instance is created:
-\`gng Bot {\n  init(id) { this.id = id }\n}\`
+**Standard Vibes**
+\`vibe calculate(x, y) {\n  return x * y\n}\`
 
-**Methods**
-Methods are defined with the \`vibe\` keyword inside the class:
-\`vibe activate() { say "Bot {this.id} online" }\`
+**Arrow Shorthand**
+Perfect for callbacks and one-liners.
+\`double = (n) -> n * 2\`
 
-**Namespaces (zone)**
-The \`zone\` keyword allows you to group logic into a reusable namespace:
-\`zone System {\n  vibe init() { ... }\n}\``,
+**Async Vibes**
+Vybe is built for the modern web. Every vibe can be \`async\`.
+\`async vibe fetchData() {\n  return await fetch "https://api.vybe.dev"\n}\`
+
+**The "Move" Modifier**
+Use \`move vibe\` to indicate a function that migrates state or performs destructive operations.
+\`move vibe wipe() { ... }\``,
         examples: [
             {
-                label: "The Bot Squad",
-                code: `gng Defender {\n  init(name) {\n    this.name = name\n    this.power = 100\n  }\n\n  vibe report() {\n    say "{this.name} reports {this.power} power!"\n  }\n}\n\nunit = new Defender("V-1")\nunit.report()`
+                label: "Callback Pattern",
+                code: `process = (data, handle) -> handle(data)\n\nprocess("secret", (d) -> say "Processing {d}...")`
             }
         ]
     },
     {
-        id: "io-networking",
-        title: "I/O & Networking",
-        icon: Zap,
-        description: "First-class commands for the real world.",
-        content: `Vybe treats networking and file access as fundamental language features, not as library imports.
+        id: "npm-interop",
+        title: "NPM & Packages",
+        icon: Package,
+        description: "Using the world's largest ecosystem.",
+        content: `Vybe is fully compatible with NPM. You don't need a separate package manager for libraries; just use Vybe.
 
-**Networking**
-The \`fetch\` keyword is used for non-blocking HTTP requests:
-\`resp = await fetch "https://api.example.com"\nstatus = resp.status\`
+**Installing Packages**
+Run the following in your terminal:
+\`vybe install axios\`
+\`vybe install lodash\`
 
-**User Interaction**
-The \`ask\` command pauses execution to wait for terminal input from the user:
-\`fav_lang = ask "What's your favorite language?"\`
+**Importing (The 'yo' Keyword)**
+To use a package in your Vybe code, use the \`yo\` (or \`plug\`) keyword.
+\`yo axios\`
+\`yo "path/to/local/file"\`
 
-**Waiting**
-The \`wait\` command provides precise pauses:
-\`wait 500ms\`
-\`wait 2s\`
-
-**File Operations**
-Reading and writing files is incredibly clean:
-\`data = read "config.json"\`
-\`write "log.txt" with "Success at {time()}"\``,
+**Package Usage**
+Once imported, you use them just like any other Vybe object.
+\`res = axios.get("https://google.com")\``,
         examples: [
             {
-                label: "Network Ping",
-                code: `say "Pinging..."\nres = fetch "https://api.github.com"\nsay "GitHub status: {res.status}"\n\nwait 1s\nsay "Continuing..."`
-            }
-        ]
-    },
-    {
-        id: "advanced",
-        title: "Advanced Features",
-        icon: Cpu,
-        description: "Elite tools for complex scenarios.",
-        content: `Vybe includes high-level abstractions designed for specific workflow needs.
-
-**Thread Safety (once)**
-The \`once\` block ensures that a piece of code only runs a single time across the lifetime of the process, no matter how many times it is called.
-\`once { say "Initialization synchronized." }\`
-
-**Flexing (Debug Output)**
-The \`flex\` command is an enhanced version of \`say\` designed for inspecting complex objects:
-\`flex my_config_object\`
-
-**Namespaces (zone)**
-Nested namespaces allow for clean modularization:
-\`zone Math {\n  add = (a, b) -> a + b\n}\``,
-        examples: [
-            {
-                label: "Advanced Showcase",
-                code: `grind 5 {\n  once { say "This only shows once!" }\n  say "This shows 5 times."\n}\n\nconfig = { "a": 1, "b": 2 }\nflex config`
+                label: "Using Lodash",
+                code: `yo lodash\n\nnums = [1, 2, 3]\nshuffled = lodash.shuffle(nums)\nsay shuffled`
             }
         ]
     },
     {
         id: "js-interop",
-        title: "JS Interop",
+        title: "JavaScript Interop",
         icon: RefreshCw,
-        description: "Seamless integration with the Node.js ecosystem.",
-        content: `When you need to drop down to raw JavaScript or use an existing library from NPM, Vybe provides a zero-overhead bridge.
+        description: "Directly running JS inside Vybe.",
+        content: `Sometimes you need to escape the Vybe syntax and use raw JavaScript. Vybe makes this seamless with the \`js { ... }\` block.
 
-**The JS Block**
-Wrap raw JavaScript in a \`js\` block. You can return values from the JS environment back into your Vybe variables.
-\`version = js { return process.version }\`
+**Raw Blocks**
+Code inside the \`js\` block is executed as raw Node.js code.
+\`res = js { return require('os').platform() }\`
 
-**Accessing NPM**
-Since Vybe runs on V8, you can \`require\` or \`import\` standard Node modules inside the JS block to bring their power into your Vybe scripts.`,
+**Why use it?**
+- Access low-level Node.js APIs (fs, child_process, etc.)
+- Use libraries that aren't easily wrapped in Vybe.
+- Performance critical sections that require raw V8 optimizations.
+
+**Sharing Scope**
+Variables declared in Vybe are accessible in JS, and values returned from JS are stored back in Vybe.`,
         examples: [
             {
-                label: "Library Bridge",
-                code: `os_name = js {\n  const os = require('os');\n  return os.type();\n}\nsay "Host OS: {os_name}"`
+                label: "OS Info Bridge",
+                code: `info = js {\n  const os = require('os');\n  return { \n    memory: os.totalmem(),\n    cpu: os.cpus().length\n  }\n}\nsay "System Specs: {info.cpu} cores, {info.memory} bytes"`
             }
         ]
     },
     {
-        id: "real-world",
-        title: "Real World Tools",
-        icon: Box,
-        description: "Practical examples of Vybe in production.",
-        content: `Vybe's efficiency and natural syntax make it ideal for rapidly building system utilities, automation scripts, and microservices.
+        id: "natural-commands",
+        title: "Natural Commands",
+        icon: Terminal,
+        description: "The power of built-in terminal verbs.",
+        content: `Vybe includes high-level "Natural Commands" that make system tasks trivial.
 
-**1. Scalable Log Scanner**
-Quickly scan large log files for critical patterns without the overhead of heavy runtimes.
-\`\`\`vybe
-logs = read "./logs"
-each file in logs {
-  content = read file
-  sus content.includes "CRITICAL" {
-    say "Critical issue in {file}!"
-  }
-}
-\`\`\`
+**File System**
+- **read "file.txt" into data**: Read file contents.
+- **write data into "file.txt"**: Write or overwrite a file.
+- **move "a.txt" to "b.txt"**: Rename or move files.
+- **delete "temp.log"**: Remove a file.
 
-**2. Constant Health Checker**
-A recurring service that monitors endpoints and alerts on failure.
-\`\`\`vybe
-spin frfr {
-  res = fetch "https://api.vybelang.com/health"
-  sus res.status != 200 {
-    say "Health check failed: {res.status}"
-  }
-  wait 60s
-}
-\`\`\`
+**Networking**
+- **fetch "url" into results**: Perform HTTP GET requests asynchronously.
+- **serve 3000 -> "Hello"**: Start a web server on a port.
 
-**3. Minimal Dev Server**
-A functional server proxy in just a few lines of code.
-\`\`\`vybe
-serve 3000 {
-  get "/*" -> {
-    path = req.url
-    return read "./static" + path
-  }
-}
-\`\`\``,
+**Execution**
+- **run "npm start"**: Execute shell commands and capture output.
+- **wait 5s**: Pause the current execution thread.`,
         examples: [
             {
-                label: "Dev Utility",
-                code: `// Simple Scraper\nresp = fetch "https://vybelang.netlify.app"\nsay "Page size: {size(resp.data)} bytes"`
+                label: "System Clean-up",
+                code: `say "Cleaning logs..."\ndelete "./tmp/old.log"\nwait 500ms\nsay "Done."`
+            }
+        ]
+    },
+    {
+        id: "advanced",
+        title: "Elite Features",
+        icon: Cpu,
+        description: "Once-blocks, Namespaces, and Namespaces.",
+        content: `For building large-scale systems, Vybe offers unique architectural tools.
+
+**The Once Block**
+Code inside a \`once\` block will ONLY execute the very first time it's encountered in the entire lifecycle of the program. 
+\`once {\n  say "Initializing global singleton..."\n}\`
+
+**Zones (Namespaces)**
+Organize your code into logical modules.
+\`zone Database {\n  vibe connect() { ... }\n}\`
+
+**Squads (Classes)**
+Classic object orientation with a modern twist.
+\`gng Player {\n  init(name) { this.name = name }\n  vibe play() { say "{this.name} is playing" }\n}\``,
+        examples: [
+            {
+                label: "Singleton Pattern",
+                code: `init = () -> once {\n  say "Connect to Database 🔌"\n}\n\ngrind 10 {\n  init()\n  say "Querying..."\n}`
             }
         ]
     }

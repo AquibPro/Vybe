@@ -138,8 +138,7 @@ export class Transpiler {
     }
 
     private transpileLoopStatement(stmt: LoopStatement): string {
-        const i = `__i${Math.floor(Math.random() * 1000)}`;
-        let out = `${this.indent()}for(let ${i} = 0; ${i} < ${this.transpileExpr(stmt.count)}; ${i}++) {\n`;
+        let out = `${this.indent()}for(let it = 0; it < ${this.transpileExpr(stmt.count)}; it++) {\n`;
         this.indentLevel++;
         out += stmt.body.body.map(s => this.transpileStmt(s)).join("\n");
         this.indentLevel--;

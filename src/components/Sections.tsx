@@ -12,7 +12,7 @@ export default function Ecosystem() {
     const tools = [
         { icon: TerminalIcon, name: "CLI Toolchain", desc: "Build, test, and manage packages from a single unified binary.", link: "/docs#toolchain" },
         { icon: Layout, name: "VS Code Extension", desc: "Rich syntax highlighting, intelligent autocompletion, and real-time linting." },
-        { icon: Package, name: "VYPM", desc: "The Vybe Package Manager. Secure, fast, and remarkably easy to use." },
+        { icon: Package, name: "NPM Native", desc: "Use any NPM package. Install with 'vybe install' and import with 'yo'." },
         { icon: Coffee, name: "Documentation", desc: "Comprehensive guides, API references, and interactive tutorials.", link: "/docs" }
     ];
 
@@ -80,9 +80,7 @@ export function Installation() {
         {
             name: "macOS",
             icon: (
-                <svg className="w-12 h-12 mb-6 text-white/20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.057 12.71c.018 2.583 2.235 3.447 2.266 3.459-.022.072-.35 1.196-1.156 2.373-.696 1.02-1.42 2.035-2.557 2.056-1.115.021-1.474-.66-2.748-.66-1.273 0-1.666.639-2.729.681-1.116.039-1.942-1.076-2.641-2.083-1.429-2.059-2.522-5.816-1.05-8.36.732-1.264 2.032-2.064 3.444-2.083 1.073-.022 2.085.719 2.741.719.656 0 1.889-.91 3.166-.78 1.151.047 2.043.511 2.544 1.241-2.91 1.745-2.455 5.253.27 6.447zm-3.664-8.86c.616-1.31 1.03-3.125.4-4.85-1.579.063-3.483 1.053-4.614 2.375-1.012 1.182-1.896 3.033-1.27 4.708 1.761.136 3.512-.923 4.484-2.233z" />
-                </svg>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" className="w-12 h-12 mb-6 invert opacity-80" alt="macOS" />
             ),
             subtitle: "Apple Silicon & Intel",
             label: "Coming Soon",
@@ -92,9 +90,7 @@ export function Installation() {
         {
             name: "Linux",
             icon: (
-                <svg className="w-12 h-12 mb-6 text-white/20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C9.79 2 8 3.79 8 6C8 8.21 9.79 10 12 10C14.21 10 16 8.21 16 6C16 3.79 14.21 2 12,2M12,4C13.1,4 14,4.9 14,6C14,7.1 13.1,8 12,8C10.9,8 10,7.1 10,6C10,4.9 10.9,4 12,4M18,13.1C18,10.84 15.31,9 12,9C8.69,9 6,10.84 6,13.1C6,14.65 7.27,15.97 9.06,16.64L7.54,20L12,18.5L16.46,20L14.94,16.64C16.73,15.97 18,14.65 18,13.1Z" />
-                </svg>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" className="w-12 h-12 mb-6 opacity-80" alt="Linux" />
             ),
             subtitle: "Binary & DEB Packages",
             label: "Coming Soon",
@@ -171,7 +167,7 @@ export function Installation() {
     const methods = [
         {
             name: "VS Marketplace",
-            icon: <Layout className="w-12 h-12 mb-6 text-vybe-blue" />,
+            icon: <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg" className="w-12 h-12 mb-6" alt="VS Code" />,
             subtitle: "Web Browser",
             label: "Visit Marketplace",
             link: "https://marketplace.visualstudio.com/items?itemName=vybe-lang.vybe",
@@ -270,13 +266,16 @@ export function Community() {
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-6">
-                        <Link href="#" className="flex items-center gap-3 px-8 py-3 rounded-full bg-[#5865F2] hover:bg-[#4752C4] transition-colors font-bold text-sm uppercase tracking-widest">
-                            <MessageCircle className="w-5 h-5" /> Discord
+                        <Link href="https://instagram.com/vybelang" target="_blank" className="flex items-center gap-3 px-8 py-3 rounded-full bg-gradient-to-tr from-[#FFB353] via-[#FF2C7D] to-[#9900FA] hover:opacity-90 transition-opacity font-bold text-sm uppercase tracking-widest text-white">
+                            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.947.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
+                            Instagram
                         </Link>
-                        <Link href="#" className="flex items-center gap-3 px-8 py-3 rounded-full bg-white text-black hover:bg-gray-200 transition-colors font-bold text-sm uppercase tracking-widest group">
+                        <Link href="https://github.com/vybe-lang" target="_blank" className="flex items-center gap-3 px-8 py-3 rounded-full bg-white text-black hover:bg-gray-200 transition-colors font-bold text-sm uppercase tracking-widest group">
                             <Github className="w-5 h-5 transition-transform group-hover:scale-110" /> GitHub
                         </Link>
-                        <Link href="mailto:masteraquibkhan@gmail.com" className="flex items-center gap-3 px-8 py-3 rounded-full glass hover:bg-white/10 transition-colors font-bold text-sm uppercase tracking-widest">
+                        <Link href="mailto:support@vybelang.org" className="flex items-center gap-3 px-8 py-3 rounded-full glass hover:bg-white/10 transition-colors font-bold text-sm uppercase tracking-widest">
                             <Coffee className="w-5 h-5 text-vybe-purple" /> Support
                         </Link>
                     </div>
@@ -318,24 +317,24 @@ export function Footer() {
                             <div className="space-y-2">
                                 <Link href="/docs" className="block text-xs text-white/40 hover:text-white transition-colors">Documentation</Link>
                                 <Link href="/playground" className="block text-xs text-white/40 hover:text-white transition-colors">Playground</Link>
-                                <Link href="#download" className="block text-xs text-white/40 hover:text-white transition-colors">Download</Link>
+                                <Link href="/#download" className="block text-xs text-white/40 hover:text-white transition-colors">Download</Link>
                             </div>
                         </div>
                         <div>
                             <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-4">Sections</h5>
                             <div className="space-y-2">
-                                <Link href="#what-is-vybe" className="block text-xs text-white/40 hover:text-white transition-colors">What is Vybe?</Link>
-                                <Link href="#why-vybe" className="block text-xs text-white/40 hover:text-white transition-colors">Why Vybe?</Link>
-                                <Link href="#features" className="block text-xs text-white/40 hover:text-white transition-colors text-ellipsis overflow-hidden">Features</Link>
-                                <Link href="#download" className="block text-xs text-white/40 hover:text-white transition-colors">Downloads</Link>
+                                <Link href="/#what-is-vybe" className="block text-xs text-white/40 hover:text-white transition-colors">What is Vybe?</Link>
+                                <Link href="/#why-vybe" className="block text-xs text-white/40 hover:text-white transition-colors">Why Vybe?</Link>
+                                <Link href="/#features" className="block text-xs text-white/40 hover:text-white transition-colors text-ellipsis overflow-hidden">Features</Link>
+                                <Link href="/#download" className="block text-xs text-white/40 hover:text-white transition-colors">Downloads</Link>
                             </div>
                         </div>
                         <div>
                             <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-4">Connect</h5>
-                            <div className="space-y-2">
-                                <Link href="https://github.com" target="_blank" className="block text-xs text-white/40 hover:text-white transition-colors">GitHub</Link>
-                                <Link href="#" className="block text-xs text-white/40 hover:text-white transition-colors">Discord</Link>
-                                <Link href="mailto:masteraquibkhan@gmail.com" className="block text-xs text-white/40 hover:text-white transition-colors font-bold text-vybe-blue">Support</Link>
+                             <div className="space-y-2">
+                                <Link href="https://github.com/vybe-lang" target="_blank" className="block text-xs text-white/40 hover:text-white transition-colors">GitHub</Link>
+                                <Link href="https://instagram.com/vybelang" target="_blank" className="block text-xs text-white/40 hover:text-white transition-colors">Instagram</Link>
+                                <Link href="mailto:support@vybelang.org" className="block text-xs text-white/40 hover:text-white transition-colors font-bold text-vybe-blue">Support</Link>
                             </div>
                         </div>
                     </div>

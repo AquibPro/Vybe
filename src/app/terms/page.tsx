@@ -25,7 +25,7 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-bold text-white mb-4">3. Community Guidelines</h2>
                         <p>
-                            Users participating in our community ecosystems (Discord, GitHub, etc.) must maintain respectful conduct. We reserve the right to remove individuals who violate community standards.
+                            Users participating in our community ecosystems (Instagram, GitHub, etc.) must maintain respectful conduct. We reserve the right to remove individuals who violate community standards.
                         </p>
                     </section>
                 </div>

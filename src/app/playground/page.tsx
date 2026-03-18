@@ -23,7 +23,7 @@ const EXAMPLES = [
     },
     {
         label: "The Bot Squad",
-        code: `gng Defender {\n  init(name) {\n    this.name = name\n    this.power = 100\n  }\n\n  vibe activate() {\n    say "System Online: {this.name}"\n    say "Power Level: {this.power}"\n  }\n}\n\nsquad = [new Defender("V-1"), new Defender("X-9")]\n\neach bot in squad {\n  bot.activate()\n}`
+        code: `gng Defender {\n  init(name) {\n    this.name = name\n    this.power = 100\n  }\n\n  vibe activate() {\n    say "System Online: {this.name}"\n    say "Power Level: {this.power}"\n  }\n}\n\nbots = [Defender("V-1"), Defender("X-9")]\n\neach bot in bots {\n  bot.activate()\n}`
     },
     {
         label: "Iteration Flow",

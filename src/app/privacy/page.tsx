@@ -25,7 +25,7 @@ export default function PrivacyPage() {
                     <section>
                         <h2 className="text-2xl font-bold text-white mb-4">3. Third-Party Links</h2>
                         <p>
-                            Our documentation and community hubs (e.g., Discord or GitHub) contain links to third-party sites. We are not responsible for the privacy practices of those platforms.
+                            Our documentation and community hubs (e.g., Instagram or GitHub) contain links to third-party sites. We are not responsible for the privacy practices of those platforms.
                         </p>
                     </section>
                 </div>

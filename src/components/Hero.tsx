@@ -79,7 +79,7 @@ export default function Hero() {
                     className="flex flex-col sm:flex-row gap-6 items-center"
                 >
                     <Link
-                        href="#download"
+                        href="/#download"
                         className="btn-premium flex items-center gap-3"
                     >
                         Get Vybe <ArrowRight className="w-5 h-5" />

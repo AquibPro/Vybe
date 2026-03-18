@@ -603,8 +603,10 @@ async function evalLoopStatement(loopStmt: LoopStatement, env: Environment): Pro
     let count = (countVal as NumberVal).value;
 
     for (let i = 0; i < count; i++) {
+        const loopEnv = new Environment(env);
+        loopEnv.declareVar("it", { type: "number", value: i } as any);
         try {
-            lastEvaluated = await evalBlockStatement(loopStmt.body, env);
+            lastEvaluated = await evalBlockStatement(loopStmt.body, loopEnv);
         } catch (e: any) {
             if (e && e.kind === "break") break;
             if (e && e.kind === "continue") continue;
