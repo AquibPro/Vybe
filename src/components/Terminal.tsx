@@ -4,10 +4,10 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
 const commands = [
-    { text: "vybe create project", delay: 1000 },
+    { text: "vybe create", delay: 1000 },
     { text: "vybe run", delay: 2000 },
-    { text: "vybe build --release", delay: 1500 },
-    { text: "Successfully built stand-alone executable!", delay: 500, type: "success" }
+    { text: "vybe build -o app", delay: 1500 },
+    { text: "⚡ Build success", delay: 500, type: "success" }
 ];
 
 export default function Terminal() {

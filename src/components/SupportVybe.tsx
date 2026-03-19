@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Copy, Check, CreditCard, Bitcoin, Smartphone, QrCode } from "lucide-react";
+import { Copy, Check, CreditCard, Bitcoin, Smartphone, QrCode, AlertTriangle } from "lucide-react";
 
 const AMOUNTS = [
     { label: "$20", link: "https://buy.stripe.com/test_20" },
@@ -40,6 +40,7 @@ export default function SupportVybe() {
     const [method, setMethod] = useState<"gateway" | "crypto" | "upi">("gateway");
     const [selectedAmount, setSelectedAmount] = useState<string | null>(null);
     const [copied, setCopied] = useState<string | null>(null);
+    const [showPopup, setShowPopup] = useState(false);
 
     const handleCopy = (text: string, id: string) => {
         navigator.clipboard.writeText(text);
@@ -48,14 +49,60 @@ export default function SupportVybe() {
     };
 
     const handleProceed = () => {
-        const amt = AMOUNTS.find(a => a.label === selectedAmount);
-        if (amt) {
-            window.open(amt.link, "_blank");
-        }
+        setShowPopup(true);
     };
 
     return (
         <section className="py-24 bg-vybe-dark relative overflow-hidden">
+            {/* Payment Modal */}
+            <AnimatePresence>
+                {showPopup && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowPopup(false)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                        />
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-md bg-[#0D1117] border border-white/10 rounded-3xl p-8 shadow-2xl overflow-hidden"
+                        >
+                            <div className="absolute top-0 left-0 w-full h-1 bg-vybe-gradient" />
+                            
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-16 h-16 rounded-2xl bg-vybe-purple/20 flex items-center justify-center mb-6 border border-vybe-purple/30">
+                                    <AlertTriangle className="w-8 h-8 text-vybe-purple" />
+                                </div>
+                                
+                                <h3 className="text-2xl font-black italic mb-4">Feature Unavailable</h3>
+                                
+                                <div className="space-y-4 mb-8">
+                                    <p className="text-white/60 text-sm leading-relaxed">
+                                        The direct payment gateway is currently under maintenance. 
+                                        To support Vybe, please use the <span className="text-white font-bold">Crypto</span> or <span className="text-white font-bold">UPI</span> options.
+                                    </p>
+                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+                                        <div className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">Direct Help</div>
+                                        <div className="text-sm font-bold text-vybe-blue">aquib@vybe.pro</div>
+                                    </div>
+                                </div>
+
+                                <button 
+                                    onClick={() => setShowPopup(false)}
+                                    className="w-full py-4 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] border border-white/10 transition-all active:scale-95"
+                                >
+                                    Go Back
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
             {/* Background elements */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none opacity-20">
                 <div className="absolute top-0 left-1/4 w-96 h-96 bg-vybe-purple/20 blur-[100px]" />
